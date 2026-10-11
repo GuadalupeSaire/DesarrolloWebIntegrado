@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport
+    name="informe_empresas"
+    pageWidth="595"
+    pageHeight="842"
+    columnWidth="531"
+    leftMargin="32"
+    rightMargin="32"
+    topMargin="28"
+    bottomMargin="28"
+    whenNoDataType="AllSectionsNoDetail">
+
+    <parameter name="TOTAL_EMPRESAS" class="java.lang.Integer"/>
+    <parameter name="FECHA_GENERACION" class="java.lang.String"/>
+
+    <field name="id" class="java.lang.Long"/>
+    <field name="razonSocial" class="java.lang.String"/>
+    <field name="ruc" class="java.lang.String"/>
+    <field name="direccion" class="java.lang.String"/>
+    <field name="telefono" class="java.lang.String"/>
+    <field name="correo" class="java.lang.String"/>
+    <field name="estado" class="java.lang.Boolean"/>
+    <field name="creadoEn" class="java.time.LocalDateTime"/>
+
+    <variable name="EMPRESAS_ACTIVAS" class="java.lang.Integer" calculation="Sum">
+        <expression><![CDATA[Boolean.TRUE.equals($F{estado}) ? 1 : 0]]></expression>
+    </variable>
+    <variable name="EMPRESAS_INACTIVAS" class="java.lang.Integer" calculation="Sum">
+        <expression><![CDATA[Boolean.FALSE.equals($F{estado}) ? 1 : 0]]></expression>
+    </variable>
+
+    <title height="168">
+        <element kind="rectangle" x="0" y="0" width="531" height="58"
+                 forecolor="#173B67" backcolor="#173B67" mode="Opaque">
+            <pen lineWidth="0.0" lineColor="#173B67"/>
+        </element>
+        <element kind="staticText" x="18" y="10" width="250" height="24"
+                 fontSize="17.0" bold="true" forecolor="#FFFFFF">
+            <text><![CDATA[GESCONT S.A.C.]]></text>
+        </element>
+        <element kind="staticText" x="18" y="35" width="310" height="13"
+                 fontSize="8.0" forecolor="#DCE8F5">
+            <text><![CDATA[GESTIÓN CONTABLE Y ADMINISTRATIVA]]></text>
+        </element>
+        <element kind="staticText" x="390" y="17" width="55" height="12"
+                 fontSize="7.0" bold="true" forecolor="#DCE8F5">
+            <text><![CDATA[EMITIDO]]></text>
+        </element>
+        <element kind="textField" x="390" y="31" width="125" height="15"
+                 fontSize="9.0" bold="true" forecolor="#FFFFFF" hTextAlign="Right">
+            <expression><![CDATA[$P{FECHA_GENERACION}]]></expression>
+        </element>
+
+        <element kind="staticText" x="0" y="69" width="531" height="25"
+                 fontSize="17.0" bold="true" forecolor="#173B67" hTextAlign="Center">
+            <text><![CDATA[REPORTE MAESTRO DE EMPRESAS]]></text>
+        </element>
+        <element kind="staticText" x="0" y="96" width="531" height="14"
+                 fontSize="8.5" forecolor="#64748B" hTextAlign="Center">
+            <text><![CDATA[Directorio y estado de las empresas registradas en el sistema]]></text>
+        </element>
+
+        <element kind="rectangle" x="0" y="119" width="169" height="32"
+                 forecolor="#EAF0F7" backcolor="#EAF0F7" mode="Opaque">
+            <pen lineWidth="0.0" lineColor="#EAF0F7"/>
+        </element>
+        <element kind="staticText" x="12" y="124" width="145" height="11"
+                 fontSize="7.0" bold="true" forecolor="#64748B">
+            <text><![CDATA[TOTAL REGISTRADAS]]></text>
+        </element>
+        <element kind="textField" x="12" y="136" width="145" height="14"
+                 fontSize="11.0" bold="true" forecolor="#173B67">
+            <expression><![CDATA[$P{TOTAL_EMPRESAS}]]></expression>
+        </element>
+
+        <element kind="rectangle" x="181" y="119" width="169" height="32"
+                 forecolor="#E8F5EF" backcolor="#E8F5EF" mode="Opaque">
+            <pen lineWidth="0.0" lineColor="#E8F5EF"/>
+        </element>
+        <element kind="staticText" x="193" y="124" width="145" height="11"
+                 fontSize="7.0" bold="true" forecolor="#397653">
+            <text><![CDATA[EMPRESAS ACTIVAS]]></text>
+        </element>
+        <element kind="textField" evaluationTime="Report"
+                 x="193" y="136" width="145" height="14"
+                 fontSize="11.0" bold="true" forecolor="#24744A">
+            <expression><![CDATA[$V{EMPRESAS_ACTIVAS}]]></expression>
+        </element>
+
+        <element kind="rectangle" x="362" y="119" width="169" height="32"
+                 forecolor="#FBECEC" backcolor="#FBECEC" mode="Opaque">
+            <pen lineWidth="0.0" lineColor="#FBECEC"/>
+        </element>
+        <element kind="staticText" x="374" y="124" width="145" height="11"
+                 fontSize="7.0" bold="true" forecolor="#9C4A4A">
+            <text><![CDATA[EMPRESAS INACTIVAS]]></text>
+        </element>
+        <element kind="textField" evaluationTime="Report"
+                 x="374" y="136" width="145" height="14"
+                 fontSize="11.0" bold="true" forecolor="#A33A3A">
+            <expression><![CDATA[$V{EMPRESAS_INACTIVAS}]]></expression>
+        </element>
+
+        <element kind="textField" x="0" y="153" width="531" height="12"
+                 fontSize="8.0" forecolor="#64748B" hTextAlign="Center">
+            <expression><![CDATA[$P{TOTAL_EMPRESAS} == 0 ? "No hay empresas registradas." : "Cada ficha presenta la información de identificación, contacto y registro."]]></expression>
+        </element>
+    </title>
+
+    <detail>
+        <band height="178" splitType="Stretch">
+            <element kind="rectangle" x="0" y="3" width="531" height="168"
+                     forecolor="#D8E1EB" backcolor="#FFFFFF" mode="Opaque">
+                <pen lineWidth="1.0" lineColor="#D8E1EB"/>
+            </element>
+            <element kind="rectangle" x="0" y="3" width="5" height="168"
+                     forecolor="#2A8C82" backcolor="#2A8C82" mode="Opaque">
+                <pen lineWidth="0.0" lineColor="#2A8C82"/>
+            </element>
+
+            <element kind="staticText" x="15" y="11" width="100" height="11"
+                     fontSize="7.0" bold="true" forecolor="#64748B">
+                <text><![CDATA[FICHA DE EMPRESA]]></text>
+            </element>
+            <element kind="textField" x="110" y="10" width="35" height="13"
+                     fontSize="8.0" bold="true" forecolor="#64748B">
+                <expression><![CDATA["#" + $V{REPORT_COUNT}]]></expression>
+            </element>
+            <element kind="textField" x="15" y="27" width="385" height="22"
+                     fontSize="12.0" bold="true" forecolor="#173B67">
+                <expression><![CDATA[$F{razonSocial}]]></expression>
+            </element>
+            <element kind="textField" x="411" y="28" width="103" height="17"
+                     fontSize="8.0" bold="true" forecolor="#173B67" hTextAlign="Right">
+                <expression><![CDATA[$F{estado} == null ? "SIN ESTADO" : ($F{estado} ? "ACTIVA" : "INACTIVA")]]></expression>
+            </element>
+
+            <element kind="rectangle" x="15" y="53" width="499" height="1"
+                     forecolor="#E2E8F0" backcolor="#E2E8F0" mode="Opaque">
+                <pen lineWidth="0.0" lineColor="#E2E8F0"/>
+            </element>
+
+            <element kind="staticText" x="15" y="61" width="160" height="12"
+                     fontSize="7.0" bold="true" forecolor="#2A8C82">
+                <text><![CDATA[IDENTIFICACIÓN LEGAL]]></text>
+            </element>
+            <element kind="staticText" x="15" y="79" width="40" height="12"
+                     fontSize="8.0" bold="true" forecolor="#64748B">
+                <text><![CDATA[RUC]]></text>
+            </element>
+            <element kind="textField" x="55" y="79" width="190" height="12" fontSize="8.5">
+                <expression><![CDATA[$F{ruc}]]></expression>
+            </element>
+            <element kind="staticText" x="280" y="79" width="57" height="12"
+                     fontSize="8.0" bold="true" forecolor="#64748B">
+                <text><![CDATA[CÓDIGO]]></text>
+            </element>
+            <element kind="textField" x="337" y="79" width="177" height="12" fontSize="8.5">
+                <expression><![CDATA["EMP-" + $F{id}]]></expression>
+            </element>
+
+            <element kind="staticText" x="15" y="101" width="160" height="12"
+                     fontSize="7.0" bold="true" forecolor="#2A8C82">
+                <text><![CDATA[CONTACTO Y UBICACIÓN]]></text>
+            </element>
+            <element kind="staticText" x="15" y="119" width="57" height="12"
+                     fontSize="8.0" bold="true" forecolor="#64748B">
+                <text><![CDATA[TELÉFONO]]></text>
+            </element>
+            <element kind="textField" x="72" y="119" width="173" height="12" fontSize="8.5">
+                <expression><![CDATA[$F{telefono} == null || $F{telefono}.isBlank() ? "No registrado" : $F{telefono}]]></expression>
+            </element>
+            <element kind="staticText" x="280" y="119" width="52" height="12"
+                     fontSize="8.0" bold="true" forecolor="#64748B">
+                <text><![CDATA[CORREO]]></text>
+            </element>
+            <element kind="textField" x="332" y="119" width="182" height="12" fontSize="8.5">
+                <expression><![CDATA[$F{correo} == null || $F{correo}.isBlank() ? "No registrado" : $F{correo}]]></expression>
+            </element>
+
+            <element kind="staticText" x="15" y="137" width="57" height="12"
+                     fontSize="8.0" bold="true" forecolor="#64748B">
+                <text><![CDATA[DIRECCIÓN]]></text>
+            </element>
+            <element kind="textField" x="72" y="137" width="442" height="12" fontSize="8.5">
+                <expression><![CDATA[$F{direccion} == null || $F{direccion}.isBlank() ? "No registrada" : $F{direccion}]]></expression>
+            </element>
+
+            <element kind="rectangle" x="15" y="155" width="499" height="1"
+                     forecolor="#E2E8F0" backcolor="#E2E8F0" mode="Opaque">
+                <pen lineWidth="0.0" lineColor="#E2E8F0"/>
+            </element>
+            <element kind="staticText" x="15" y="160" width="105" height="10"
+                     fontSize="7.0" bold="true" forecolor="#64748B">
+                <text><![CDATA[REGISTRADA EN GESCONT]]></text>
+            </element>
+            <element kind="textField" x="122" y="159" width="180" height="12"
+                     fontSize="8.0" forecolor="#64748B">
+                <expression><![CDATA[$F{creadoEn} == null ? "Sin fecha" : $F{creadoEn}.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))]]></expression>
+            </element>
+        </band>
+    </detail>
+
+    <pageFooter height="26">
+        <element kind="rectangle" x="0" y="0" width="531" height="1"
+                 forecolor="#D8E1EB" backcolor="#D8E1EB" mode="Opaque">
+            <pen lineWidth="0.0" lineColor="#D8E1EB"/>
+        </element>
+        <element kind="staticText" x="0" y="7" width="350" height="14"
+                 fontSize="8.0" forecolor="#64748B">
+            <text><![CDATA[GESCONT S.A.C. | Informe general de empresas]]></text>
+        </element>
+        <element kind="textField" x="451" y="7" width="80" height="14"
+                 fontSize="8.0" forecolor="#64748B" hTextAlign="Right">
+            <expression><![CDATA["Página " + $V{PAGE_NUMBER}]]></expression>
+        </element>
+    </pageFooter>
+</jasperReport>

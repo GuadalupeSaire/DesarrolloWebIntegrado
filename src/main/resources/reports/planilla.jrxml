@@ -1,0 +1,530 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport
+    name="planilla"
+    pageWidth="842"
+    pageHeight="595"
+    columnWidth="782"
+    leftMargin="30"
+    rightMargin="30"
+    topMargin="30"
+    bottomMargin="30">
+
+    <!-- ========================= -->
+    <!-- PARÁMETROS -->
+    <!-- ========================= -->
+
+    <parameter name="EMPRESA" class="java.lang.String"/>
+    <parameter name="RUC" class="java.lang.String"/>
+    <parameter name="PERIODO" class="java.lang.String"/>
+    <parameter name="ESTADO" class="java.lang.String"/>
+    <parameter name="TIPO_DOCUMENTO" class="java.lang.String"/>
+
+    <!-- TOTALES -->
+    <parameter name="TOTAL_BRUTO" class="java.math.BigDecimal"/>
+    <parameter name="TOTAL_DESCUENTOS" class="java.math.BigDecimal"/>
+    <parameter name="TOTAL_NETO" class="java.math.BigDecimal"/>
+
+
+    <!-- ========================= -->
+    <!-- CAMPOS -->
+    <!-- ========================= -->
+
+    <field name="trabajadorNombre" class="java.lang.String"/>
+    <field name="documento" class="java.lang.String"/>
+
+    <field name="sueldoBase" class="java.math.BigDecimal"/>
+    <field name="bonificaciones" class="java.math.BigDecimal"/>
+    <field name="totalBruto" class="java.math.BigDecimal"/>
+    <field name="totalDescuentos" class="java.math.BigDecimal"/>
+    <field name="totalNeto" class="java.math.BigDecimal"/>
+
+
+    <!-- ========================= -->
+    <!-- TÍTULO -->
+    <!-- ========================= -->
+
+    <title height="120">
+
+        <!-- LOGO / NOMBRE -->
+
+        <element
+            kind="staticText"
+            x="0"
+            y="0"
+            width="782"
+            height="30"
+            fontSize="20.0"
+            bold="true"
+            hTextAlign="Center">
+
+            <text><![CDATA[GESCONT S.A.C.]]></text>
+
+        </element>
+
+
+        <!-- TÍTULO -->
+
+        <element
+            kind="textField"
+            x="0"
+            y="35"
+            width="782"
+            height="25"
+            fontSize="14.0"
+            bold="true"
+            hTextAlign="Center">
+
+            <expression><![CDATA[$P{TIPO_DOCUMENTO}]]></expression>
+
+        </element>
+
+
+        <!-- ========================= -->
+        <!-- EMPRESA -->
+        <!-- ========================= -->
+
+        <element
+            kind="staticText"
+            x="0"
+            y="70"
+            width="90"
+            height="20"
+            bold="true">
+
+            <text><![CDATA[Empresa:]]></text>
+
+        </element>
+
+        <element
+            kind="textField"
+            x="90"
+            y="70"
+            width="300"
+            height="20">
+
+            <expression><![CDATA[$P{EMPRESA}]]></expression>
+
+        </element>
+
+
+        <!-- ========================= -->
+        <!-- RUC -->
+        <!-- ========================= -->
+
+        <element
+            kind="staticText"
+            x="420"
+            y="70"
+            width="50"
+            height="20"
+            bold="true">
+
+            <text><![CDATA[RUC:]]></text>
+
+        </element>
+
+        <element
+            kind="textField"
+            x="470"
+            y="70"
+            width="150"
+            height="20">
+
+            <expression><![CDATA[$P{RUC}]]></expression>
+
+        </element>
+
+
+        <!-- ========================= -->
+        <!-- PERÍODO -->
+        <!-- ========================= -->
+
+        <element
+            kind="staticText"
+            x="0"
+            y="95"
+            width="90"
+            height="20"
+            bold="true">
+
+            <text><![CDATA[Período:]]></text>
+
+        </element>
+
+        <element
+            kind="textField"
+            x="90"
+            y="95"
+            width="150"
+            height="20">
+
+            <expression><![CDATA[$P{PERIODO}]]></expression>
+
+        </element>
+
+
+        <!-- ========================= -->
+        <!-- ESTADO -->
+        <!-- ========================= -->
+
+        <element
+            kind="staticText"
+            x="420"
+            y="95"
+            width="50"
+            height="20"
+            bold="true">
+
+            <text><![CDATA[Estado:]]></text>
+
+        </element>
+
+        <element
+            kind="textField"
+            x="470"
+            y="95"
+            width="150"
+            height="20">
+
+            <expression><![CDATA[$P{ESTADO}]]></expression>
+
+        </element>
+
+    </title>
+
+
+    <!-- ========================= -->
+    <!-- CABECERA DE TABLA -->
+    <!-- ========================= -->
+
+    <columnHeader height="35">
+
+        <element
+            kind="staticText"
+            x="0"
+            y="0"
+            width="180"
+            height="30"
+            backcolor="#E5E7EB"
+            mode="Opaque"
+            bold="true"
+            hTextAlign="Center">
+
+            <text><![CDATA[Trabajador]]></text>
+
+        </element>
+
+
+        <element
+            kind="staticText"
+            x="180"
+            y="0"
+            width="100"
+            height="30"
+            backcolor="#E5E7EB"
+            mode="Opaque"
+            bold="true"
+            hTextAlign="Center">
+
+            <text><![CDATA[Documento]]></text>
+
+        </element>
+
+
+        <element
+            kind="staticText"
+            x="280"
+            y="0"
+            width="100"
+            height="30"
+            backcolor="#E5E7EB"
+            mode="Opaque"
+            bold="true"
+            hTextAlign="Center">
+
+            <text><![CDATA[Sueldo base]]></text>
+
+        </element>
+
+
+        <element
+            kind="staticText"
+            x="380"
+            y="0"
+            width="100"
+            height="30"
+            backcolor="#E5E7EB"
+            mode="Opaque"
+            bold="true"
+            hTextAlign="Center">
+
+            <text><![CDATA[Bonificaciones]]></text>
+
+        </element>
+
+
+        <element
+            kind="staticText"
+            x="480"
+            y="0"
+            width="100"
+            height="30"
+            backcolor="#E5E7EB"
+            mode="Opaque"
+            bold="true"
+            hTextAlign="Center">
+
+            <text><![CDATA[Bruto]]></text>
+
+        </element>
+
+
+        <element
+            kind="staticText"
+            x="580"
+            y="0"
+            width="100"
+            height="30"
+            backcolor="#E5E7EB"
+            mode="Opaque"
+            bold="true"
+            hTextAlign="Center">
+
+            <text><![CDATA[Descuentos]]></text>
+
+        </element>
+
+
+        <element
+            kind="staticText"
+            x="680"
+            y="0"
+            width="102"
+            height="30"
+            backcolor="#E5E7EB"
+            mode="Opaque"
+            bold="true"
+            hTextAlign="Center">
+
+            <text><![CDATA[Neto]]></text>
+
+        </element>
+
+    </columnHeader>
+
+
+    <!-- ========================= -->
+    <!-- DETALLE -->
+    <!-- ========================= -->
+
+    <detail>
+
+        <band height="30">
+
+            <!-- TRABAJADOR -->
+
+            <element
+                kind="textField"
+                x="0"
+                y="0"
+                width="180"
+                height="25">
+
+                <expression><![CDATA[$F{trabajadorNombre}]]></expression>
+
+            </element>
+
+
+            <!-- DOCUMENTO -->
+
+            <element
+                kind="textField"
+                x="180"
+                y="0"
+                width="100"
+                height="25"
+                hTextAlign="Center">
+
+                <expression><![CDATA[$F{documento}]]></expression>
+
+            </element>
+
+
+            <!-- SUELDO BASE -->
+
+            <element
+                kind="textField"
+                x="280"
+                y="0"
+                width="100"
+                height="25"
+                hTextAlign="Right">
+
+                <expression><![CDATA[$F{sueldoBase}]]></expression>
+
+            </element>
+
+
+            <!-- BONIFICACIONES -->
+
+            <element
+                kind="textField"
+                x="380"
+                y="0"
+                width="100"
+                height="25"
+                hTextAlign="Right">
+
+                <expression><![CDATA[$F{bonificaciones}]]></expression>
+
+            </element>
+
+
+            <!-- BRUTO -->
+
+            <element
+                kind="textField"
+                x="480"
+                y="0"
+                width="100"
+                height="25"
+                hTextAlign="Right">
+
+                <expression><![CDATA[$F{totalBruto}]]></expression>
+
+            </element>
+
+
+            <!-- DESCUENTOS -->
+
+            <element
+                kind="textField"
+                x="580"
+                y="0"
+                width="100"
+                height="25"
+                hTextAlign="Right">
+
+                <expression><![CDATA[$F{totalDescuentos}]]></expression>
+
+            </element>
+
+
+            <!-- NETO -->
+
+            <element
+                kind="textField"
+                x="680"
+                y="0"
+                width="102"
+                height="25"
+                hTextAlign="Right">
+
+                <expression><![CDATA[$F{totalNeto}]]></expression>
+
+            </element>
+
+        </band>
+
+    </detail>
+
+
+    <!-- ========================= -->
+    <!-- RESUMEN -->
+    <!-- ========================= -->
+
+    <summary height="100">
+
+
+        <!-- ========================= -->
+        <!-- TOTAL BRUTO -->
+        <!-- ========================= -->
+
+        <element
+            kind="staticText"
+            x="480"
+            y="10"
+            width="150"
+            height="20"
+            bold="true">
+
+            <text><![CDATA[TOTAL BRUTO:]]></text>
+
+        </element>
+
+        <element
+            kind="textField"
+            x="630"
+            y="10"
+            width="152"
+            height="20"
+            bold="true"
+            hTextAlign="Right">
+
+            <expression><![CDATA[$P{TOTAL_BRUTO}]]></expression>
+
+        </element>
+
+
+        <!-- ========================= -->
+        <!-- TOTAL DESCUENTOS -->
+        <!-- ========================= -->
+
+        <element
+            kind="staticText"
+            x="480"
+            y="35"
+            width="150"
+            height="20"
+            bold="true">
+
+            <text><![CDATA[TOTAL DESCUENTOS:]]></text>
+
+        </element>
+
+        <element
+            kind="textField"
+            x="630"
+            y="35"
+            width="152"
+            height="20"
+            bold="true"
+            hTextAlign="Right">
+
+            <expression><![CDATA[$P{TOTAL_DESCUENTOS}]]></expression>
+
+        </element>
+
+
+        <!-- ========================= -->
+        <!-- TOTAL NETO -->
+        <!-- ========================= -->
+
+        <element
+            kind="staticText"
+            x="480"
+            y="60"
+            width="150"
+            height="20"
+            bold="true">
+
+            <text><![CDATA[TOTAL NETO:]]></text>
+
+        </element>
+
+        <element
+            kind="textField"
+            x="630"
+            y="60"
+            width="152"
+            height="20"
+            bold="true"
+            hTextAlign="Right">
+
+            <expression><![CDATA[$P{TOTAL_NETO}]]></expression>
+
+        </element>
+
+    </summary>
+
+</jasperReport>

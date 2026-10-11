@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<!-- SIDEBAR -->
+<aside th:fragment="sidebar(activo)"
+       class="sidebar">
+
+    <script th:src="@{/js/table-scroll.js}" defer></script>
+
+    <div class="brand">
+
+        <div class="brand-icon">G</div>
+
+        <div>
+            <strong>GESCONT</strong>
+            <small>Gestión empresarial</small>
+        </div>
+
+    </div>
+
+
+    <div class="menu-label">
+        MENÚ PRINCIPAL
+    </div>
+
+
+    <nav class="menu">
+
+        <a th:href="@{/inicio}"
+           th:classappend="${activo == 'inicio'} ? ' active' : ''">
+
+            <span>▦</span>
+            Inicio
+
+        </a>
+
+
+        <a th:if="${esAdministrador}"
+           th:href="@{/empresas}"
+           th:classappend="${activo == 'empresas'} ? ' active' : ''">
+
+            <span>▣</span>
+            Empresas
+
+        </a>
+
+
+        <a th:href="@{/contactos}"
+   th:classappend="${activo == 'contactos'} ? ' active' : ''">
+    <span>♙</span>
+    Contactos
+</a>
+
+
+        <a th:if="${esAdministrador}"
+           th:href="@{/usuarios}"
+           th:classappend="${activo == 'usuarios'} ? ' active' : ''">
+
+            <span>♧</span>
+            Usuarios y roles
+
+        </a>
+
+
+        <div class="menu-label">
+            GESTIÓN
+        </div>
+
+
+        <a href="#"
+           class="disabled-link">
+
+            <span>▤</span>
+            Selección de personal
+
+            <small>
+                Próximamente
+            </small>
+
+        </a>
+
+
+        <a th:if="${esAdministrador or esPlanillas}"
+           th:href="@{/trabajadores}"
+           th:classappend="${activo == 'trabajadores'} ? ' active' : ''">
+
+            <span>▤</span>
+            Trabajadores
+
+        </a>
+
+
+        <a th:if="${esAdministrador or esPlanillas}"
+           th:href="@{/planillas}"
+           th:classappend="${activo == 'planillas'} ? ' active' : ''">
+
+            <span>▤</span>
+            Planillas
+
+        </a>
+
+
+        <a href="#"
+           class="disabled-link">
+
+            <span>▤</span>
+            Impuestos
+
+            <small>
+                Próximamente
+            </small>
+
+        </a>
+
+
+        <a href="#"
+           class="disabled-link">
+
+            <span>▤</span>
+            Documentos
+
+            <small>
+                Próximamente
+            </small>
+
+        </a>
+
+
+        <a href="#"
+           class="disabled-link">
+
+            <span>♧</span>
+            Notificaciones
+
+            <small>
+                Próximamente
+            </small>
+
+        </a>
+
+    </nav>
+
+
+    <!-- PARTE INFERIOR DEL SIDEBAR -->
+    <div class="sidebar-bottom">
+
+        <span>
+            GESCONT S.A.C.
+        </span>
+
+        <small>
+            Sistema administrativo
+        </small>
+
+
+        <!-- CERRAR SESIÓN -->
+        <form th:action="@{/logout}"
+              method="post"
+              style="margin-top: 12px;">
+
+            <input type="hidden"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}">
+
+            <button type="submit"
+                    class="btn btn-danger btn-sm"
+                    style="width: 100%;">
+
+                Cerrar sesión
+
+            </button>
+
+        </form>
+
+    </div>
+
+</aside>
+
+
+<!-- HEADER -->
+<header th:fragment="header(titulo)"
+        class="topbar">
+
+    <div>
+
+        <span class="breadcrumb">
+            GESCONT / Panel
+        </span>
+
+        <h2 th:text="${titulo}">
+            Inicio
+        </h2>
+
+    </div>
+
+
+    <div class="topbar-user">
+
+    <div class="user-avatar"
+         th:text="${usuarioActual != null
+            ? #strings.substring(usuarioActual.nombres, 0, 1)
+              + #strings.substring(usuarioActual.apellidos, 0, 1)
+            : 'U'}">
+        U
+    </div>
+
+    <div>
+
+        <strong
+            th:text="${usuarioActual != null
+                ? usuarioActual.nombres + ' ' + usuarioActual.apellidos
+                : 'Usuario'}">
+            Usuario
+        </strong>
+
+        <small
+            th:text="${rolActual != null and !rolActual.isEmpty()
+                ? rolActual
+                : 'Sin rol'}">
+            Sin rol
+        </small>
+
+    </div>
+
+</div>
+
+</header>
+
+
+<!-- FOOTER -->
+<footer th:fragment="footer"
+        class="footer">
+
+    <span>
+        © 2026 GESCONT S.A.C.
+    </span>
+
+    <span>
+        Sistema de gestión empresarial
+    </span>
+
+</footer>
+
+</body>
+</html>

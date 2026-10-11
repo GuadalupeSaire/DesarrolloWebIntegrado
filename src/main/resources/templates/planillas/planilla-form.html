@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Generar planilla | GESCONT</title>
+
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/layout :: sidebar('planillas')}"></div>
+
+<div class="main">
+
+    <header th:replace="~{fragments/layout :: header('Planillas')}">
+    </header>
+
+    <main class="content">
+
+        <!-- Encabezado reutilizable -->
+        <div th:replace="~{fragments/formulario :: encabezado(
+            'Generar planilla',
+            'Selecciona la empresa y el período que deseas procesar.'
+        )}">
+        </div>
+
+        <!-- Tarjeta -->
+        <section class="card">
+
+            <h3 class="card-title">
+                Información de la planilla
+            </h3>
+
+            <form th:action="@{/planillas/calcular}"
+                  method="post">
+
+                <div class="form-grid">
+
+                    <!-- Empresa -->
+                    <div class="form-group" th:if="${esAdministrador}">
+
+                        <label for="empresaId">Empresa</label>
+
+                        <select class="form-control"
+                                id="empresaId"
+                                name="empresaId"
+                                required>
+                            <option value="">Seleccione una empresa</option>
+                            <option th:each="empresa : ${empresas}"
+                                    th:value="${empresa.id}"
+                                    th:text="${empresa.razonSocial}">
+                            </option>
+                        </select>
+
+                    </div>
+
+                    <div class="form-group" th:unless="${esAdministrador}">
+                        <label for="empresaActual">Empresa asignada</label>
+                        <input class="form-control"
+                               id="empresaActual"
+                               type="text"
+                               th:value="${empresaActual.razonSocial}"
+                               readonly>
+                    </div>
+
+                    <!-- Año -->
+                    <div class="form-group">
+
+                        <label for="anio">
+                            Año
+                        </label>
+
+                        <input class="form-control"
+                               id="anio"
+                               name="anio"
+                               type="number"
+                               min="2020"
+                               max="2100"
+                               th:value="${#dates.format(#dates.createNow(), 'yyyy')}"
+                               required>
+
+                    </div>
+
+                    <!-- Mes -->
+                    <div class="form-group">
+
+                        <label for="mes">
+                            Mes
+                        </label>
+
+                        <select class="form-control"
+                                id="mes"
+                                name="mes"
+                                required>
+
+                            <option value="">
+                                Seleccione un mes
+                            </option>
+
+                            <option value="1">Enero</option>
+                            <option value="2">Febrero</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Mayo</option>
+                            <option value="6">Junio</option>
+                            <option value="7">Julio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <!-- Botones reutilizables -->
+                <div th:replace="~{fragments/formulario :: botones(
+                    'Calcular planilla',
+                    '/planillas'
+                )}">
+                </div>
+
+            </form>
+
+        </section>
+
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</div>
+
+</body>
+</html>

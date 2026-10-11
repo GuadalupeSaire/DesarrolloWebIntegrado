@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${contacto.id == null ? 'Nuevo contacto' : 'Editar contacto'} + ' | GESCONT'">Contacto | GESCONT</title>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: sidebar('contactos')}"></div>
+
+<div class="main">
+    <header th:replace="~{fragments/layout :: header('Contactos')}"></header>
+
+    <main class="content">
+        <div th:replace="~{fragments/formulario :: encabezado(
+            ${contacto.id == null ? 'Nuevo contacto' : 'Editar contacto'},
+            'Registra los datos de contacto de la empresa cliente.'
+        )}"></div>
+
+        <section class="card">
+            <h3 class="card-title">Información del contacto</h3>
+            <form th:action="@{/contactos/guardar}" th:object="${contacto}" method="post">
+                <input type="hidden" th:field="*{id}">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="empresaId">Empresa</label>
+                        <select class="form-control" id="empresaId" name="empresaId" required>
+                            <option value="">Selecciona una empresa</option>
+                            <option th:each="empresa : ${empresas}" th:value="${empresa.id}"
+                                    th:text="${empresa.razonSocial}"
+                                    th:selected="${empresaSeleccionadaId != null and empresaSeleccionadaId == empresa.id}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="nombre">Nombre completo</label>
+                        <input class="form-control" id="nombre" type="text" th:field="*{nombre}" maxlength="120" required>
+                        <small class="field-error" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></small>
+                    </div>
+                    <div class="form-group">
+                        <label for="cargo">Cargo</label>
+                        <input class="form-control" id="cargo" type="text" th:field="*{cargo}" maxlength="100">
+                    </div>
+                    <div class="form-group">
+                        <label for="correo">Correo electrónico</label>
+                        <input class="form-control" id="correo" type="email" th:field="*{correo}" maxlength="150">
+                        <small class="field-error" th:if="${#fields.hasErrors('correo')}" th:errors="*{correo}"></small>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input class="form-control" id="telefono" type="tel" th:field="*{telefono}" maxlength="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="principal">Contacto principal</label>
+                        <select class="form-control" id="principal" th:field="*{principal}">
+                            <option th:value="false">No</option>
+                            <option th:value="true">Sí</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div th:replace="~{fragments/formulario :: botones(
+                    'Guardar contacto',
+                    '/contactos'
+                )}"></div>
+            </form>
+        </section>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+</body>
+</html>

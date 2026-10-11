@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Empresas | GESCONT</title>
+
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/layout :: sidebar('empresas')}"></div>
+
+<div class="main">
+
+    <header th:replace="~{fragments/layout :: header('Empresas')}"></header>
+
+    <main class="content">
+
+        <div class="page-heading">
+            <div>
+                <p>Administra la información de las empresas que atiende GESCONT.</p>
+            </div>
+
+            <a class="btn btn-primary" th:href="@{/empresas/nueva}">
+                + Nueva empresa
+            </a>
+        </div>
+
+        <section class="card">
+
+            <h3 class="card-title">Listado de empresas</h3>
+
+            <div class="worker-list-controls">
+                <div class="worker-search">
+                    <label for="busquedaEmpresa">Buscar Empresa</label>
+                    <input id="busquedaEmpresa"
+                           type="search"
+                           placeholder="Nombre"
+                           autocomplete="off">
+                </div>
+
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Razón social</th>
+                            <th>RUC</th>
+                            <th>Dirección</th>
+                            <th>Teléfono</th>
+                            <th>Correo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr data-company-row th:each="empresa : ${empresas}">
+                            <td th:text="${empresa.id}"></td>
+                            <td th:text="${empresa.razonSocial}"></td>
+                            <td th:text="${empresa.ruc}"></td>
+                            <td th:text="${empresa.direccion}"></td>
+                            <td th:text="${empresa.telefono}"></td>
+                            <td th:text="${empresa.correo}"></td>
+
+                            <td>
+                                <div style="display:flex; gap:8px;">
+
+                                    <a class="btn btn-secondary btn-sm"
+                                       th:href="@{/empresas/editar/{id}(id=${empresa.id})}">
+                                        Editar
+                                    </a>
+
+                                    <form th:action="@{/empresas/eliminar/{id}(id=${empresa.id})}"
+                                          method="post"
+                                          onsubmit="return confirm('Esta acción eliminará permanentemente la empresa y sus trabajadores, planillas, vacantes, postulaciones, documentos y declaraciones asociados. ¿Deseas continuar?');">
+
+                                        <button class="btn btn-danger btn-sm"
+                                                type="submit">
+                                            Eliminar empresa
+                                        </button>
+                                    </form>
+
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr th:if="${#lists.isEmpty(empresas)}">
+                            <td colspan="7" class="empty-state">
+                                No hay empresas registradas todavía.
+                                <br><br>
+                                Registra tu primera empresa para comenzar.
+                            </td>
+                        </tr>
+
+                        <tr id="mensajeSinEmpresasCoincidentes" hidden>
+                            <td colspan="7" class="empty-state">
+                                No hay empresas que coincidan con la búsqueda.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</div>
+
+    <script>
+    (() => {
+        const input = document.getElementById('busquedaEmpresa');
+        const rows = document.querySelectorAll('[data-company-row]');
+        const noResults = document.getElementById('mensajeSinEmpresasCoincidentes');
+
+        const normalizar = (texto) => texto
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLocaleLowerCase('es');
+
+        input.addEventListener('input', () => {
+            const query = normalizar(input.value.trim());
+            let visibles = 0;
+
+            rows.forEach((row) => {
+                const empresa = normalizar(
+                    Array.from(row.cells)
+                        .slice(1, 6)
+                        .map((cell) => cell.textContent)
+                        .join(' ')
+                );
+
+                row.hidden = !empresa.includes(query);
+                if (!row.hidden) visibles++;
+            });
+
+            noResults.hidden = rows.length === 0 || visibles > 0;
+        });
+    })();
+</script>
+
+</body>
+</html>

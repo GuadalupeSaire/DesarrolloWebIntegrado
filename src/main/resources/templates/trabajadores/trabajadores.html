@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Trabajadores | GESCONT</title>
+
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/layout :: sidebar('trabajadores')}"></div>
+
+<div class="main">
+
+    <header th:replace="~{fragments/layout :: header('Trabajadores')}"></header>
+
+    <main class="content">
+
+        <div class="page-heading">
+
+            <div>
+                <p>
+                    <span th:if="${esAdministrador}">Administra los trabajadores de todas las empresas.</span>
+                    <span th:unless="${esAdministrador}">Administra los trabajadores de tu empresa asignada.</span>
+                </p>
+            </div>
+
+            <div class="worker-page-actions">
+                <a class="btn btn-secondary"
+                   th:href="@{/informes/trabajadores/pdf}"
+                   target="_blank"
+                   rel="noopener">
+                    Generar informe PDF
+                </a>
+
+                <a class="btn btn-primary"
+                   th:href="@{/trabajadores/nuevo}">
+                    + Nuevo trabajador
+                </a>
+            </div>
+
+        </div>
+
+        <section class="card">
+
+            <h3 class="card-title">
+                Listado de trabajadores
+            </h3>
+
+            <div class="worker-list-controls">
+                <div class="worker-search">
+                    <label for="busquedaTrabajador">Buscar trabajador</label>
+                    <input id="busquedaTrabajador"
+                           type="search"
+                           placeholder="Nombre, apellido o documento"
+                           autocomplete="off">
+                </div>
+
+                <div class="worker-company-tabs"
+                     role="group"
+                     aria-label="Filtrar trabajadores por empresa"
+                     th:if="${esAdministrador}">
+                    <button type="button"
+                            class="worker-company-tab active"
+                            data-empresa-filter="all"
+                            aria-pressed="true">
+                        Todas
+                    </button>
+
+                    <button type="button"
+                            class="worker-company-tab"
+                            th:each="empresa : ${empresas}"
+                            th:data-empresa-filter="${empresa.id}"
+                            aria-pressed="false"
+                            th:text="${empresa.razonSocial}">
+                        Empresa
+                    </button>
+                </div>
+
+                <div class="worker-company-tabs"
+                     aria-label="Empresa asignada"
+                     th:unless="${esAdministrador}">
+                    <span class="worker-company-tab active"
+                          th:text="${empresaActual.razonSocial}">
+                        Empresa asignada
+                    </span>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                    <tr>
+                        <th>ID</th>
+                        <th>Documento</th>
+                        <th>Trabajador</th>
+                        <th>Empresa</th>
+                        <th>Cargo</th>
+                        <th>Sueldo base</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    <tr data-worker-row
+                        th:each="trabajador : ${trabajadores}"
+                        th:data-empresa-id="${trabajador.empresa.id}"
+                        th:data-search="${trabajador.nombres + ' ' + trabajador.apellidos + ' ' + trabajador.documentoNumero}">
+
+                        <td th:text="${trabajador.id}"></td>
+
+                        <td th:text="${trabajador.documentoNumero}"></td>
+
+                        <td th:text="${trabajador.nombres + ' ' + trabajador.apellidos}">
+                        </td>
+
+                        <td th:text="${trabajador.empresa.razonSocial}">
+                        </td>
+
+                        <td th:text="${trabajador.cargo}">
+                        </td>
+
+                        <td th:text="${trabajador.sueldoBase}">
+                        </td>
+
+                        <td>
+
+                            <span th:if="${trabajador.activo}"
+                                  class="badge badge-success">
+                                Activo
+                            </span>
+
+                            <span th:unless="${trabajador.activo}"
+                                  class="badge badge-danger">
+                                Inactivo
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <div style="display:flex; gap:8px;">
+
+                                <a class="btn btn-secondary btn-sm"
+                                   th:href="@{/trabajadores/editar/{id}(id=${trabajador.id})}">
+                                    Editar
+                                </a>
+
+                                <form th:action="@{/trabajadores/eliminar/{id}(id=${trabajador.id})}"
+                                      method="post"
+                                      onsubmit="return confirm('El trabajador pasará a estado inactivo y se conservará su historial de planillas. ¿Deseas continuar?');">
+
+                                    <button class="btn btn-danger btn-sm"
+                                            type="submit">
+                                        Dar de baja
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(trabajadores)}">
+
+                        <td colspan="8"
+                            class="empty-state">
+
+                            No hay trabajadores registrados todavía.
+                            <br><br>
+                            Registra tu primer trabajador para comenzar.
+
+                        </td>
+
+                    </tr>
+
+                    <tr id="mensajeSinResultados" hidden>
+                        <td colspan="8" class="empty-state">
+                            No hay trabajadores que coincidan con la empresa y búsqueda seleccionadas.
+                        </td>
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</div>
+
+<script>
+    (() => {
+        const searchInput = document.getElementById('busquedaTrabajador');
+        const tabs = document.querySelectorAll('.worker-company-tab[data-empresa-filter]');
+        const rows = document.querySelectorAll('[data-worker-row]');
+        const noResults = document.getElementById('mensajeSinResultados');
+        let selectedCompany = 'all';
+
+        const normalizar = (texto) => texto
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLocaleLowerCase('es');
+
+        function filterWorkers() {
+            const query = normalizar(searchInput.value.trim());
+            let visibleRows = 0;
+
+            rows.forEach((row) => {
+                const matchesCompany = selectedCompany === 'all'
+                    || row.dataset.empresaId === selectedCompany;
+                const workerData = normalizar(
+                    `${row.cells[1].textContent} ${row.cells[2].textContent}`
+                );
+                const matchesSearch = workerData.includes(query);
+                row.hidden = !(matchesCompany && matchesSearch);
+
+                if (!row.hidden) visibleRows++;
+            });
+
+            noResults.hidden = rows.length === 0 || visibleRows > 0;
+        }
+
+        tabs.forEach((tab) => {
+            tab.addEventListener('click', () => {
+                selectedCompany = tab.dataset.empresaFilter;
+
+                tabs.forEach((item) => {
+                    const isSelected = item === tab;
+                    item.classList.toggle('active', isSelected);
+                    item.setAttribute('aria-pressed', String(isSelected));
+                });
+
+                filterWorkers();
+            });
+        });
+
+        searchInput.addEventListener('input', filterWorkers);
+    })();
+</script>
+
+</body>
+</html>

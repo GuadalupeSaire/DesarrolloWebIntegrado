@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio | GESCONT</title>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/layout :: sidebar('inicio')}"></div>
+
+<div class="main">
+
+    <header th:replace="~{fragments/layout :: header('Inicio')}"></header>
+
+    <main class="content">
+
+        <section class="page-heading dashboard-heading">
+            <div>
+                <h1 th:text="${esAdministrador ? 'Resumen general' : 'Resumen de empresa'}">Resumen</h1>
+                <p th:if="${esAdministrador}">Indicadores de las empresas y operaciones administradas por GESCONT.</p>
+                <p th:unless="${esAdministrador}"
+                   th:text="${empresaActual != null ? empresaActual.razonSocial : 'No tienes una empresa asignada'}">
+                    Empresa asignada
+                </p>
+            </div>
+            <a class="btn btn-primary"
+               th:if="${esAdministrador}"
+               th:href="@{/informes/empresas/pdf}"
+               target="_blank"
+               rel="noopener">
+                Informe de empresas
+            </a>
+        </section>
+
+        <section class="dashboard-metrics" aria-label="Indicadores">
+
+            <article class="card metric-card metric-companies">
+                <div class="metric-label" th:text="${esAdministrador ? 'Empresas registradas' : 'Empresa asignada'}">Empresas</div>
+                <p class="metric-value"
+                   th:classappend="${!esAdministrador} ? ' metric-value-company'"
+                   th:text="${esAdministrador ? totalEmpresas : (empresaActual != null ? empresaActual.razonSocial : 'Sin asignación')}">0</p>
+                <a class="metric-link" th:if="${esAdministrador}" th:href="@{/empresas}">
+                    Ver empresas <span aria-hidden="true">→</span>
+                </a>
+            </article>
+
+            <article class="card metric-card metric-workers">
+                <div class="metric-label">Trabajadores</div>
+                <p class="metric-value" th:text="${totalTrabajadores}">0</p>
+                <a class="metric-link"
+                   th:if="${esAdministrador or esPlanillas}"
+                   th:href="@{/trabajadores}">
+                    Ver trabajadores <span aria-hidden="true">→</span>
+                </a>
+            </article>
+
+            <article class="card metric-card metric-payrolls">
+                <div class="metric-label">Planillas procesadas</div>
+                <p class="metric-value" th:text="${totalPlanillas}">0</p>
+                <a class="metric-link"
+                   th:if="${esAdministrador or esPlanillas}"
+                   th:href="@{/planillas}">
+                    Ver planillas <span aria-hidden="true">→</span>
+                </a>
+            </article>
+
+        </section>
+
+        <section class="dashboard-charts" aria-label="Gráficos de planillas">
+
+            <article class="card dashboard-chart-card dashboard-chart-monthly">
+                <div class="chart-heading">
+                    <div>
+                        <h2 class="card-title">Neto de planillas por mes</h2>
+                        <p>Últimos seis meses · valores en moneda registrada</p>
+                    </div>
+                    <span class="chart-key"><i class="chart-dot chart-dot-primary"></i>Total neto</span>
+                </div>
+
+                <div class="monthly-chart" role="img" aria-label="Gráfico de barras de totales netos por mes">
+                    <div class="monthly-chart-column" th:each="dato : ${netoMensual}">
+                        <span class="monthly-chart-value" th:text="${#numbers.formatDecimal(dato.neto, 1, 'COMMA', 0, 'POINT')}">0</span>
+                        <div class="monthly-chart-track">
+                            <div class="monthly-chart-bar"
+                                 th:style="'height: ' + ${dato.altura} + '%'"></div>
+                        </div>
+                        <span class="monthly-chart-label" th:text="${dato.etiqueta}">Mes</span>
+                    </div>
+                </div>
+
+                <p class="chart-empty" th:if="${totalPlanillas == 0}">
+                    Aún no hay planillas para mostrar. El gráfico se actualizará al procesar una.
+                </p>
+            </article>
+
+            <article class="card dashboard-chart-card dashboard-chart-status">
+                <div class="chart-heading">
+                    <div>
+                        <h2 class="card-title">Estado de las planillas</h2>
+                        <p>Distribución de las planillas visibles para tu perfil</p>
+                    </div>
+                </div>
+
+                <div class="status-chart-layout">
+                    <div class="status-donut"
+                         role="img"
+                         aria-label="Gráfico circular de planillas por estado"
+                         th:style="'background: ' + ${estadoGradient}">
+                        <div class="status-donut-hole">
+                            <strong th:text="${totalPlanillas}">0</strong>
+                            <span>planillas</span>
+                        </div>
+                    </div>
+
+                    <ul class="status-legend">
+                        <li th:each="estado : ${estadosPlanilla}">
+                            <span class="status-legend-label">
+                                <i class="status-dot" th:style="'background-color: ' + ${estado.color}"></i>
+                                <span th:text="${estado.etiqueta}">Estado</span>
+                            </span>
+                            <strong th:text="${estado.cantidad}">0</strong>
+                        </li>
+                    </ul>
+                </div>
+            </article>
+
+        </section>
+
+        <section class="card dashboard-actions">
+            <div>
+                <h2 class="card-title">Accesos rápidos</h2>
+                <p class="dashboard-description">Continúa con las tareas disponibles para tu perfil.</p>
+            </div>
+
+            <div class="quick-links">
+                <a class="quick-link" th:if="${esAdministrador}" th:href="@{/empresas/nueva}">
+                    <span class="quick-link-icon" aria-hidden="true">+</span>
+                    <span><strong>Registrar empresa</strong><small>Agregar una empresa cliente</small></span>
+                    <span class="quick-link-arrow" aria-hidden="true">→</span>
+                </a>
+
+                <a class="quick-link" th:if="${esAdministrador or esPlanillas}" th:href="@{/trabajadores/nuevo}">
+                    <span class="quick-link-icon" aria-hidden="true">+</span>
+                    <span><strong>Registrar trabajador</strong><small>Agregar un trabajador a una empresa</small></span>
+                    <span class="quick-link-arrow" aria-hidden="true">→</span>
+                </a>
+
+                <a class="quick-link" th:if="${esAdministrador or esPlanillas}" th:href="@{/planillas/nueva}">
+                    <span class="quick-link-icon" aria-hidden="true">+</span>
+                    <span><strong>Crear planilla</strong><small>Procesar un período de nómina</small></span>
+                    <span class="quick-link-arrow" aria-hidden="true">→</span>
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</div>
+
+</body>
+</html>

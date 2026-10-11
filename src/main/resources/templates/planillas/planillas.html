@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Planillas | GESCONT</title>
+
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/layout :: sidebar('planillas')}"></div>
+
+<div class="main">
+
+    <header th:replace="~{fragments/layout :: header('Planillas')}">
+    </header>
+
+    <main class="content">
+
+        <div class="page-heading">
+
+            <div>
+                <p>
+                    <span th:if="${esAdministrador}">Administra las planillas de todas las empresas.</span>
+                    <span th:unless="${esAdministrador}">Consulta y procesa las planillas de tu empresa asignada.</span>
+                </p>
+            </div>
+
+            <a class="btn btn-primary"
+               th:href="@{/planillas/nueva}">
+                + Nueva planilla
+            </a>
+
+        </div>
+
+        <section class="card">
+
+            <h3 class="card-title">
+                Listado de planillas
+            </h3>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                    <tr>
+                        <th>ID</th>
+                        <th>Empresa</th>
+                        <th>Período</th>
+                        <th>Estado</th>
+                        <th>Total bruto</th>
+                        <th>Descuentos</th>
+                        <th>Total neto</th>
+                        <th>Acciones</th>
+                    </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:each="planilla : ${planillas}">
+
+                        <td th:text="${planilla.id}">
+                            1
+                        </td>
+
+                        <td th:text="${planilla.empresa.razonSocial}">
+                            Empresa
+                        </td>
+
+                        <td>
+
+                            <span th:switch="${planilla.periodoMes}">
+
+                                <span th:case="1">Enero</span>
+                                <span th:case="2">Febrero</span>
+                                <span th:case="3">Marzo</span>
+                                <span th:case="4">Abril</span>
+                                <span th:case="5">Mayo</span>
+                                <span th:case="6">Junio</span>
+                                <span th:case="7">Julio</span>
+                                <span th:case="8">Agosto</span>
+                                <span th:case="9">Septiembre</span>
+                                <span th:case="10">Octubre</span>
+                                <span th:case="11">Noviembre</span>
+                                <span th:case="12">Diciembre</span>
+
+                            </span>
+
+                            <span th:text="' ' + ${planilla.periodoAnio}">
+                                2026
+                            </span>
+
+                        </td>
+
+                        <td th:text="${planilla.estado}">
+                            CALCULADA
+                        </td>
+
+                        <td th:text="${planilla.totalBruto}">
+                            0.00
+                        </td>
+
+                        <td th:text="${planilla.totalDescuentos}">
+                            0.00
+                        </td>
+
+                        <td th:text="${planilla.totalNeto}">
+                            0.00
+                        </td>
+
+                        <td>
+
+                            <div style="display:flex; gap:8px;">
+
+                                <a class="btn btn-secondary btn-sm"
+                                   th:href="@{/planillas/ver/{id}(id=${planilla.id})}">
+                                    Ver
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(planillas)}">
+
+                        <td colspan="8"
+                            class="empty-state">
+
+                            No hay planillas registradas todavía.
+                            <br><br>
+                            Genera la primera planilla para comenzar.
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,185 @@
+================================================================================
+ESPECIFICACIÓN DE REQUERIMIENTOS TÉCNICOS Y ARQUITECTURA DE SOFTWARE
+PROYECTO: SASREC (Sistema de Apoyo al Servicio de Reclutamiento de Personal)
+ORGANIZACIÓN: GESCONT Servicios Administrativos y Contables S.A.C.
+UNIVERSIDAD TECNOLÓGICA DEL PERÚ (UTP) - CURSO INTEGRADOR I
+VERSIÓN: 2.0 - ALCANCE REDUCIDO
+================================================================================
+
+1. INFORMACIÓN GENERAL Y OBJETIVO DEL SISTEMA
+--------------------------------------------------------------------------------
+1.1 Nombre del Sistema: SASREC.
+1.2 Propósito: Sistema web multiempresa para automatizar el reclutamiento y
+    selección de personal (ATS) y el cálculo interno de planillas y boletas de
+    las empresas cliente de GESCONT. No presenta información a SUNAT ni envía
+    información a ninguna entidad o persona externa.
+1.3 Modelo Operativo: Multiempresa lógico (aislamiento de datos por empresa cliente).
+1.4 Roles: Administrador, Jefe de Reclutamiento (Jefe_Reclutamiento), Analista de
+    Selección (Analista), Asistente de Reclutamiento (Asistente) y Encargado de
+    Planillas (Planillas).
+
+--------------------------------------------------------------------------------
+2. ARQUITECTURA Y PATRONES DE DISEÑO
+--------------------------------------------------------------------------------
+2.1 Patrón: MVC de Spring con arquitectura en capas:
+    Controller -> Service (@Transactional) -> Repository (Spring Data JPA) -> PostgreSQL.
+2.2 Patrones: Repository, Service Layer y DTO para reportes (TrabajadorEmpresaReporte,
+    DetallePlanillaReporte). Autenticación con Spring Security (formulario y sesión)
+    y contraseñas con BCrypt.
+
+--------------------------------------------------------------------------------
+3. STACK TECNOLÓGICO
+--------------------------------------------------------------------------------
+Backend: Java 21, Spring Boot (Web, Data JPA, Security, Validation), PostgreSQL.
+Frontend: Thymeleaf y Bootstrap.
+Librerías: Apache PDFBox (lectura de CVs), JasperReports (reporte de terna y boletas).
+Pruebas: JUnit 5 y Mockito. Control de versiones: Git / GitHub.
+Se retiran del alcance: Spring Batch, JWT, Apache Tika y despliegue con Docker/Nginx.
+
+--------------------------------------------------------------------------------
+4. REQUERIMIENTOS FUNCIONALES (RF)
+--------------------------------------------------------------------------------
+- RF001: Inicio de Sesión y Control de Acceso por Rol
+- RF002: Gestión de Usuarios y Roles
+- RF003: Gestión de Empresas Cliente
+- RF004: Gestión de Vacantes
+- RF005: Registro de Candidatos y Carga de CV
+- RF006: Detección de Candidatos Duplicados
+- RF007: Banco Único de Postulantes
+- RF008: Evaluación y Ranking de Candidatos
+- RF009: Seguimiento del Estado de Postulaciones
+- RF010: Conformación y Aprobación de Terna
+- RF011: Reporte de Terna en PDF
+- RF012: Gestión de Trabajadores por Empresa
+- RF013: Cálculo Interno de Planilla
+- RF014: Generación de Boletas de Pago
+(Detalle de cada RF en el documento SASREC_RF_RNF_CU_Formato_Plantilla.docx)
+
+--------------------------------------------------------------------------------
+5. REQUERIMIENTOS NO FUNCIONALES (RNF)
+--------------------------------------------------------------------------------
+- RNF001 Privacidad y separación de información entre clientes
+- RNF002 Seguridad de acceso y credenciales
+- RNF003 Usabilidad
+- RNF004 Rendimiento
+- RNF005 Precisión de los cálculos de planilla
+- RNF006 Compatibilidad
+- RNF007 Disponibilidad
+- RNF008 Integridad y respaldo de la información
+- RNF009 Mantenibilidad
+- RNF010 Confidencialidad y no envío de información a terceros
+
+--------------------------------------------------------------------------------
+6. FUERA DEL ALCANCE
+--------------------------------------------------------------------------------
+- Declaraciones y archivos para SUNAT (PLAME, T-Registro), impuestos (IGV, Renta),
+  compras y ventas.
+- Envío de correos, notificaciones y aprobaciones externas.
+- Custodia digital de expedientes y gestión de documentos.
+- Inteligencia artificial: el filtrado es por coincidencia de palabras clave y requisitos.
+- Aplicaciones móviles nativas; integraciones con SUNAT, bancos o ERP.
+
+================================================================================
+BITÁCORA DE AVANCE
+--------------------------------------------------------------------------------
+2026-09-30 | Asignación de empresas a usuarios
+- El formulario permite elegir una empresa; la relación UsuarioEmpresa se guarda y la empresa aparece preseleccionada al editar.
+- El usuario confirmó que la asignación de empresa funciona.
+
+2026-09-30 | Preselección y actualización de rol
+- El formulario marca el rol asociado al usuario al editar.
+- UsuarioService actualiza la relación de rol existente en lugar de agregar otra.
+- Pendiente: validar en la aplicación que el rol se muestra correctamente y que el cambio reemplaza al anterior.
+================================================================================
+
+2026-09-30 | Aislamiento de trabajadores por empresa - paso inicial
+- UsuarioService resuelve la empresa activa a partir del correo autenticado.
+- El listado frontend distingue administrador (todas las empresas) y usuario asignado (su empresa).
+- El formulario permite al administrador elegir empresa y muestra la empresa fija a los demas usuarios.
+- El informe PDF de trabajadores se genera globalmente para el administrador y por empresa asignada para otros usuarios.
+- TrabajadorController filtra el listado por empresa activa y entrega empresaActual a la vista.
+- TrabajadorRepository y TrabajadorService incluyen busqueda de trabajador por ID y empresa.
+- Las rutas GET de listado, alta y edicion distinguen administrador y usuario asignado.
+- Las rutas POST de guardado y eliminacion tambien distinguen administrador y usuario asignado.
+- InformeController genera PDF global para administrador y PDF de una sola empresa para otros usuarios; sin asignacion responde 403.
+- SecurityConfig limita el informe general de empresas al administrador.
+- Pendiente: validar la generacion de informes y el modulo de trabajadores en la aplicacion.
+
+2026-09-30 | Restricciones iniciales por rol
+- SecurityConfig limita usuarios, empresas y el informe de empresas a ADMINISTRADOR.
+- SecurityConfig limita trabajadores y su informe a ADMINISTRADOR y PLANILLAS.
+- Planillas permite ADMINISTRADOR y PLANILLAS; las consultas y operaciones de PLANILLAS quedan limitadas a su empresa asignada.
+- Usuario Cliente queda excluido por decision del usuario.
+- PlanillaController valida el acceso por empresa en listados, formularios, calculo, detalle y descarga PDF.
+- El dashboard muestra indicadores limitados a la empresa del usuario y resumen general al administrador.
+- Dashboard incorpora grafico de barras para el neto de los ultimos seis meses y grafico circular para estados de planilla, con colores de la interfaz.
+- Pendiente: validar en la aplicacion los accesos de ADMINISTRADOR y PLANILLAS y la visualizacion de los graficos.
+
+2026-09-30 | Navegacion visible segun rol
+- UsuarioGlobalControllerAdvice publica los permisos ADMINISTRADOR y PLANILLAS para las vistas.
+- El menu lateral oculta Empresas y Usuarios a los roles sin acceso; Trabajadores y Planillas solo aparecen para ADMINISTRADOR y PLANILLAS.
+- Verificacion: Maven compila y empaqueta el proyecto con las pruebas omitidas; falta validar visualmente la navegacion iniciando sesion con cuentas de cada rol.
+
+2026-09-30 | Robustez de eliminaciones CRUD
+- El borrado fisico de una empresa elimina en transaccion sus relaciones y datos dependientes (asignaciones, contactos, trabajadores/planillas, declaraciones, vacantes/postulaciones, documentos, aprobaciones y envios) respetando las dependencias.
+- Los registros de auditoria se conservan y se desvinculan de la empresa eliminada.
+- Trabajadores y usuarios usan baja logica para preservar planillas, asignaciones y trazabilidad; la interfaz informa la accion.
+- Eliminaciones de planillas, vacantes, postulaciones, candidatos, declaraciones y documentos retiran primero sus registros hijos; se conservan candidatos globales y registros de correo/aprobacion desvinculando el documento.
+- Roles asignados no se eliminan; los metodos de eliminacion de registros inexistentes no fallan.
+- Verificacion: Maven empaqueta correctamente con las pruebas omitidas. No se ejecuto una eliminacion contra la base real; falta probar los escenarios CRUD con datos de prueba y revisar su estado en la BD.
+
+2026-09-30 | Evaluacion general del avance
+- Avance funcional estimado: 20% (cobertura aproximada de RF001-RF015, ponderando requisitos parciales; no equivale a porcentaje de codigo).
+- Funcionalidad implementada: CRUD basico de empresas, usuarios/roles/asignacion de empresa, ficha y operaciones de trabajadores con aislamiento por empresa, calculo basico de planilla, reportes PDF y dashboard con indicadores/graficos.
+- Parcial: RF006 (descuentos previsionales y tributarios aun no calculados), RF007 (reporte de planilla, sin boleta individual/correo), RF010 (sin contactos/servicios/SLA), RF011 (roles limitados acordados; Usuario Cliente excluido), RF012 (faltan campos laborales/pensionarios/bancarios) y RF014 (faltan indicadores ATS/SLA y Excel).
+- Pendiente: ATS completo RF001-RF005; PLAME/T-Registro e impuestos RF008-RF009; compras/ventas RF013; parametros laborales y tributarios RF015.
+- RNF: aislamiento por empresa y RBAC tienen una base implementada; faltan validaciones integrales de seguridad, auditoria efectiva, proteccion de datos, respaldo/recuperacion y pruebas de aceptacion.
+- Este calculo excluye la comparacion de stack y la cuenta temporal de desarrollo, segun instruccion del usuario. Evaluacion basada en lectura del codigo; requiere validacion funcional por rol.
+
+2026-10-01 | Avance de requisitos RF006 y RF007 - planillas y boletas
+- Trabajador incorpora regimen pensionario (ONP, AFP o sin aporte) y tasa de aporte configurable para AFP; la tasa ONP se valida en 13%.
+- El calculo de planilla registra faltas, horas extra, bonificaciones, subsidios y otros descuentos por trabajador; recalcula remuneracion por dias laborados, horas extra, aporte pensionario, EsSalud y totales de la planilla.
+- Se agrego la edicion de novedades desde el detalle de planilla. No se permiten valores negativos ni cambios en una planilla cerrada; se verifica el acceso a la empresa antes de guardar.
+- Se habilito descarga individual de boleta PDF por trabajador dentro de una planilla, conservando el control de acceso por empresa y usando los importes del detalle.
+- Pendiente: calcular retencion de Renta de 5ta con proyeccion anual y parametros legales; integrar envio opcional por correo; validar los calculos con escenarios contables y comprobar el PDF en la aplicacion. El calculo de horas extra usa el total mensual, aplica hasta dos horas por cada dia laborado al 25% y el excedente al 35%; falta validar la distribucion diaria real de las horas.
+- Verificacion: git diff --check sin errores de formato. No se pudo completar Maven package: el wrapper falla al iniciar y Maven no pudo descargar el parent de Spring Boot por acceso de red denegado.
+
+2026-10-01 | Orden de captura de novedades en planilla
+- Se reemplazaron los controles editables por fila por un boton "Registrar novedades" que abre un dialogo emergente reutilizable.
+- El dialogo precarga los datos del trabajador seleccionado, permite editar faltas, horas extra, bonificaciones, subsidios y otros descuentos, y actualiza el mismo endpoint de calculo por trabajador.
+- Se agregaron acciones para cerrar, cancelar y cerrar al hacer clic fuera del dialogo, junto con estilos responsivos para pantallas pequenas.
+- Verificacion: git diff --check; falta comprobar visualmente y guardar novedades desde la aplicacion.
+
+2026-10-01 | Acceso administrador para usuario temporal de desarrollo
+- La cuenta temporal user@user.com ahora recibe la autoridad ROLE_ADMINISTRADOR desde UsuarioDetailsService; sus credenciales y modo temporal de autenticacion se mantienen.
+- La interfaz muestra el rol Administrador para esta cuenta. Esto habilita las rutas protegidas para ADMINISTRADOR, pero no crea un usuario persistente ni una asignacion en PostgreSQL.
+- Verificacion: revision de las autoridades usadas por SecurityConfig; falta iniciar sesion y comprobar los modulos en la aplicacion.
+2026-10-01 | Barras de desplazamiento para tablas y sidebar
+- Se agrego una barra horizontal superior sincronizada para cada contenedor .table-wrapper; la barra inferior nativa se oculta sin desactivar el desplazamiento por rueda o trackpad.
+- Se oculta visualmente la barra vertical del sidebar manteniendo overflow-y para que el menu siga desplazandose cuando su contenido excede la pantalla.
+- La sincronizacion se implemento en static/js/table-scroll.js y se carga desde el fragmento comun de navegacion; aplica en todas las vistas que incluyen el sidebar.
+- Verificacion: pendiente de validacion visual en escritorio y movil.
+2026-10-01 | Modulo de contactos de empresas
+- Se habilito el enlace Contactos para todos los usuarios autenticados y se agrego listado con busqueda por nombre, cargo, correo, telefono o razon social.
+- Administrador puede consultar contactos de todas las empresas y crear, editar y eliminar registros.
+- Los demas usuarios solo consultan los contactos de la empresa activa asignada; no tienen acceso a formularios ni operaciones de escritura.
+- Se agregaron validaciones de nombre y correo, y se conservan los datos del contacto principal.
+- Verificacion: git diff --check; falta probar el filtro multiempresa y las restricciones de rol en la aplicacion.
+2026-10-01 | Revision del error 500 del modulo de contactos
+- Se reemplazo la consulta con filtro de empresa nullable por consultas diferenciadas para administrador y usuarios asignados; se mantiene la busqueda por los mismos campos.
+- Se ajustaron expresiones de la vista para tratar campos vacios y valores booleanos nulos sin invocar metodos directamente sobre propiedades.
+- Pendiente: repetir el ingreso como usuario temporal y revisar la excepcion completa del log si continua el error 500, pues la pagina generica no identifica la causa raiz.
+2026-10-01 | Datos iniciales de contactos de prueba
+- Se agrego sql/seed_contactos_demo.sql con dos contactos ficticios por empresa del query compartido, vinculados por RUC para no depender de IDs autogenerados.
+- El script usa correos bajo dominios .example y evita duplicados al ejecutarse nuevamente para los mismos contactos.
+- Pendiente: ejecutar despues de insertar las empresas y verificar el listado por rol y empresa; no se ejecuto contra la base de datos.
+
+2026-10-09 | Adecuación al alcance reducido (v2.0)
+- Se eliminaron las entidades Declaracion, DetalleDeclaracion, AprobacionExterna, EnvioCorreo, Notificacion y Documento, junto con sus repositories y services. EmpresaService ya no las referencia.
+- Planilla.EstadoPlanilla pasa a BORRADOR, CALCULADA y CERRADA (se quita ENVIADA).
+- Postulacion.EstadoPostulacion pasa a POSTULADA, PRESELECCIONADA, ENTREVISTA, EN_TERNA, CONTRATADA y DESCARTADA.
+- Vacante: estados ABIERTA, CERRADA y CANCELADA; se agregan experienciaAnios, palabrasClave, cantidadPuestos y los datos de aprobación de terna (estadoTerna, ternaAprobadaPor, fechaTerna).
+- Candidato: se agregan formacion, experienciaAnios y habilidades para filtros y scoring.
+- Roles: Administrador, Jefe_Reclutamiento, Analista, Asistente y Planillas (se retiran Contador y Reclutador). SecurityConfig protege /vacantes, /candidatos y /postulaciones; UsuarioGlobalControllerAdvice publica esReclutamiento.
+- Se agrega sql/adecuacion_requerimientos_reducidos.sql para limpiar y migrar la base de datos.
+- Pendiente: controladores y vistas del ATS (vacantes, candidatos, postulaciones, terna), lectura de CV con PDFBox, cálculo del porcentaje de coincidencia, reporte de terna y retiro de la cuenta temporal user@user.com. No se pudo compilar con Maven en este entorno (sin acceso a red).

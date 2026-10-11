@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title th:text="${trabajador.id == null ? 'Nuevo trabajador' : 'Editar trabajador'} + ' | GESCONT'">
+        Trabajador | GESCONT
+    </title>
+
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/layout :: sidebar('trabajadores')}"></div>
+
+<div class="main">
+
+    <header th:replace="~{fragments/layout :: header('Trabajadores')}"></header>
+
+    <main class="content">
+
+        <div th:replace="~{fragments/formulario :: encabezado(
+            ${trabajador.id == null ? 'Nuevo trabajador' : 'Editar trabajador'},
+            ${trabajador.id == null
+                ? 'Registra un nuevo trabajador para una empresa cliente.'
+                : 'Modifica la información del trabajador.'}
+        )}"></div>
+
+        <section class="card">
+
+            <h3 class="card-title"
+                th:text="${trabajador.id == null
+                    ? 'Información del trabajador'
+                    : 'Editar información del trabajador'}">
+                Información del trabajador
+            </h3>
+
+            <form th:action="@{/trabajadores/guardar}"
+                  th:object="${trabajador}"
+                  method="post">
+
+                <input type="hidden" th:field="*{id}">
+
+                <div class="form-grid">
+
+                    <!-- Empresa -->
+                    <div class="form-group" th:if="${esAdministrador}">
+
+                        <label for="empresaId">
+                            Empresa
+                        </label>
+
+                        <select class="form-control"
+                                id="empresaId"
+                                name="empresaId"
+                                required>
+
+                            <option value="">
+                                Seleccione una empresa
+                            </option>
+
+                            <option th:each="empresa : ${empresas}"
+                                    th:value="${empresa.id}"
+                                    th:text="${empresa.razonSocial}"
+                                    th:selected="${trabajador.empresa != null
+                                        and trabajador.empresa.id == empresa.id}">
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regimenPensionario">Régimen pensionario</label>
+                        <select class="form-control" id="regimenPensionario" th:field="*{regimenPensionario}" required>
+                            <option value="ONP">ONP</option>
+                            <option value="AFP">AFP (tasa configurada)</option>
+                            <option value="NINGUNO">Sin aporte previsional</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tasaPension">Tasa de aporte pensionario (%)</label>
+                        <input class="form-control" type="number" id="tasaPension"
+                               name="tasaPensionPorcentaje" min="0" max="100" step="0.01"
+                               th:value="${trabajador.tasaPension == null ? 13 : trabajador.tasaPension * 100}"
+                               required>
+                        <small>Para AFP, registra la tasa total aplicable a la afiliación del trabajador.</small>
+                    </div>
+
+                    <div class="form-group" th:unless="${esAdministrador}">
+
+                        <label for="empresaActual">
+                            Empresa asignada
+                        </label>
+
+                        <input class="form-control"
+                               id="empresaActual"
+                               type="text"
+                               th:value="${empresaActual.razonSocial}"
+                               readonly>
+
+                    </div>
+
+                    <!-- Nombres -->
+                    <div class="form-group">
+
+                        <label for="nombres">
+                            Nombres
+                        </label>
+
+                        <input class="form-control"
+                               type="text"
+                               id="nombres"
+                               th:field="*{nombres}"
+                               maxlength="100"
+                               required>
+
+                    </div>
+
+                    <!-- Apellidos -->
+                    <div class="form-group">
+
+                        <label for="apellidos">
+                            Apellidos
+                        </label>
+
+                        <input class="form-control"
+                               type="text"
+                               id="apellidos"
+                               th:field="*{apellidos}"
+                               maxlength="100"
+                               required>
+
+                    </div>
+
+                    <!-- Tipo documento -->
+                    <div class="form-group">
+
+                        <label for="tipoDocumento">
+                            Tipo de documento
+                        </label>
+
+                        <select class="form-control"
+                                id="tipoDocumento"
+                                th:field="*{tipoDocumento}">
+
+                            <option value="DNI">
+                                DNI
+                            </option>
+
+                            <option value="CE">
+                                Carné de extranjería
+                            </option>
+
+                            <option value="PASAPORTE">
+                                Pasaporte
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <!-- Documento -->
+                    <div class="form-group">
+
+                        <label for="documentoNumero">
+                            Número de documento
+                        </label>
+
+                        <input class="form-control"
+                               type="text"
+                               id="documentoNumero"
+                               th:field="*{documentoNumero}"
+                               maxlength="20"
+                               required>
+
+                    </div>
+
+                    <!-- Cargo -->
+                    <div class="form-group">
+
+                        <label for="cargo">
+                            Cargo
+                        </label>
+
+                        <input class="form-control"
+                               type="text"
+                               id="cargo"
+                               th:field="*{cargo}"
+                               maxlength="120">
+
+                    </div>
+
+                    <!-- Sueldo -->
+                    <div class="form-group">
+
+                        <label for="sueldoBase">
+                            Sueldo base
+                        </label>
+
+                        <input class="form-control"
+                               type="number"
+                               id="sueldoBase"
+                               th:field="*{sueldoBase}"
+                               min="0"
+                               step="0.01"
+                               placeholder="0.00"
+                               required>
+
+                    </div>
+
+                    <!-- Correo -->
+                    <div class="form-group">
+
+                        <label for="correo">
+                            Correo electrónico
+                        </label>
+
+                        <input class="form-control"
+                               type="email"
+                               id="correo"
+                               th:field="*{correo}"
+                               maxlength="150">
+
+                    </div>
+
+                    <!-- Teléfono -->
+                    <div class="form-group">
+
+                        <label for="telefono">
+                            Teléfono
+                        </label>
+
+                        <input class="form-control"
+                               type="text"
+                               id="telefono"
+                               th:field="*{telefono}"
+                               maxlength="20">
+
+                    </div>
+
+                    <!-- Fecha ingreso -->
+                    <div class="form-group">
+
+                        <label for="fechaIngreso">
+                            Fecha de ingreso
+                        </label>
+
+                        <input class="form-control"
+                               type="date"
+                               id="fechaIngreso"
+                               th:field="*{fechaIngreso}">
+
+                    </div>
+
+                    <!-- Fecha cese -->
+                    <div class="form-group">
+
+                        <label for="fechaCese">
+                            Fecha de cese
+                        </label>
+
+                        <input class="form-control"
+                               type="date"
+                               id="fechaCese"
+                               th:field="*{fechaCese}">
+
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="form-group">
+
+                        <label for="activo">
+                            Estado
+                        </label>
+
+                        <select class="form-control"
+                                id="activo"
+                                th:field="*{activo}">
+
+                            <option th:value="true">
+                                Activo
+                            </option>
+
+                            <option th:value="false">
+                                Inactivo
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div th:replace="~{fragments/formulario :: botones(
+                    'Guardar trabajador',
+                    '/trabajadores'
+                )}"></div>
+
+            </form>
+
+        </section>
+
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contactos | GESCONT</title>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: sidebar('contactos')}"></div>
+
+<div class="main">
+    <header th:replace="~{fragments/layout :: header('Contactos')}"></header>
+
+    <main class="content">
+        <div class="page-heading">
+            <div>
+                <p th:if="${esAdministrador}">Consulta y administra los contactos de todas las empresas.</p>
+                <p th:unless="${esAdministrador}" th:text="|Contactos de ${empresaActual.razonSocial}|">Contactos de la empresa asignada</p>
+            </div>
+            <a class="btn btn-primary" th:if="${esAdministrador}" th:href="@{/contactos/nuevo}">+ Nuevo contacto</a>
+        </div>
+
+        <section class="card">
+            <h3 class="card-title">Directorio de contactos</h3>
+
+            <form class="worker-list-controls" method="get" th:action="@{/contactos}">
+                <div class="worker-search">
+                    <label for="busquedaContacto">Buscar contacto</label>
+                    <input class="form-control" id="busquedaContacto" name="q" type="search"
+                           placeholder="Nombre, cargo, correo, teléfono o empresa"
+                           th:value="${busqueda}" autocomplete="off">
+                </div>
+                <div class="worker-page-actions">
+                    <button class="btn btn-primary" type="submit">Buscar</button>
+                    <a class="btn btn-secondary" th:href="@{/contactos}">Limpiar</a>
+                </div>
+            </form>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Empresa</th>
+                            <th>Nombre</th>
+                            <th>Cargo</th>
+                            <th>Correo</th>
+                            <th>Teléfono</th>
+                            <th>Contacto principal</th>
+                            <th th:if="${esAdministrador}">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="contacto : ${contactos}">
+                            <td th:text="${contacto.empresa.razonSocial}">Empresa</td>
+                            <td th:text="${contacto.nombre}">Nombre</td>
+                            <td th:text="${contacto.cargo == null or #strings.isEmpty(contacto.cargo) ? '-' : contacto.cargo}">Cargo</td>
+                            <td>
+                                <a th:if="${contacto.correo != null and !#strings.isEmpty(contacto.correo)}"
+                                   th:href="|mailto:${contacto.correo}|" th:text="${contacto.correo}">correo</a>
+                                <span th:unless="${contacto.correo != null and !#strings.isEmpty(contacto.correo)}">-</span>
+                            </td>
+                            <td>
+                                <a th:if="${contacto.telefono != null and !#strings.isEmpty(contacto.telefono)}"
+                                   th:href="|tel:${contacto.telefono}|" th:text="${contacto.telefono}">teléfono</a>
+                                <span th:unless="${contacto.telefono != null and !#strings.isEmpty(contacto.telefono)}">-</span>
+                            </td>
+                            <td th:text="${contacto.principal != null and contacto.principal ? 'Sí' : 'No'}">No</td>
+                            <td th:if="${esAdministrador}">
+                                <div style="display:flex; gap:8px;">
+                                    <a class="btn btn-secondary btn-sm"
+                                       th:href="@{/contactos/editar/{id}(id=${contacto.id})}">Editar</a>
+                                    <form th:action="@{/contactos/eliminar/{id}(id=${contacto.id})}"
+                                          method="post"
+                                          onsubmit="return confirm('¿Deseas eliminar este contacto?');">
+                                        <button class="btn btn-danger btn-sm" type="submit">Eliminar</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(contactos)}">
+                            <td th:colspan="${esAdministrador ? 7 : 6}" class="empty-state">
+                                No se encontraron contactos para esta búsqueda.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+</body>
+</html>

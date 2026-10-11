@@ -1,0 +1,119 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title th:text="${empresa.id == null
+        ? 'Registrar empresa'
+        : 'Editar empresa'} + ' | GESCONT'">
+        Empresa | GESCONT
+    </title>
+
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/layout :: sidebar('empresas')}"></div>
+
+<div class="main">
+
+    <header th:replace="~{fragments/layout :: header('Empresas clientes')}">
+    </header>
+
+    <main class="content">
+
+        <!-- Encabezado reutilizable -->
+        <div th:replace="~{fragments/formulario :: encabezado(
+            ${empresa.id == null ? 'Nueva empresa' : 'Editar empresa'},
+            'Completa la información de la empresa cliente.'
+        )}">
+        </div>
+
+        <!-- Tarjeta reutilizable -->
+        <section class="card">
+
+            <h3 class="card-title">Información general</h3>
+
+            <form th:action="@{/empresas/guardar}"
+                  th:object="${empresa}"
+                  method="post">
+
+                <input type="hidden" th:field="*{id}">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="razonSocial">Razón social</label>
+                        <input class="form-control"
+                               id="razonSocial"
+                               type="text"
+                               th:field="*{razonSocial}"
+                               maxlength="150"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ruc">RUC</label>
+                        <input class="form-control"
+                               id="ruc"
+                               type="text"
+                               th:field="*{ruc}"
+                               maxlength="11"
+                               pattern="[0-9]{11}"
+                               title="El RUC debe tener 11 dígitos"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="direccion">Dirección</label>
+                        <input class="form-control"
+                               id="direccion"
+                               type="text"
+                               th:field="*{direccion}"
+                               maxlength="200">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input class="form-control"
+                               id="telefono"
+                               type="text"
+                               th:field="*{telefono}"
+                               maxlength="9">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="correo">Correo electrónico</label>
+                        <input class="form-control"
+                               id="correo"
+                               type="email"
+                               th:field="*{correo}"
+                               maxlength="100">
+                    </div>
+
+                </div>
+
+                <!-- Botones reutilizables -->
+                <div th:replace="~{fragments/formulario :: botones(
+                    'Guardar empresa',
+                    '/empresas'
+                )}">
+                </div>
+
+            </form>
+
+        </section>
+
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</div>
+
+</body>
+</html>

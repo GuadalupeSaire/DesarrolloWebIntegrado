@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Detalle de planilla | GESCONT</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/estilos.css}">
+
+</head>
+
+<body>
+
+<div th:replace="~{fragments/layout :: sidebar('planillas')}"></div>
+
+<div class="main">
+
+    <header th:replace="~{fragments/layout :: header('Planillas')}"></header>
+
+    <main class="content">
+
+        <div class="page-heading">
+
+            <div>
+
+                <p>
+                    Consulta el detalle de la planilla procesada.
+                </p>
+
+            </div>
+
+            <div style="display:flex; gap:8px;">
+
+                <a class="btn btn-secondary"
+                   th:href="@{/planillas}">
+                    Volver
+                </a>
+
+                <a class="btn btn-primary"
+                   th:href="@{/planillas/ver/{id}/pdf(id=${planilla.id})}"
+                   target="_blank">
+                    Generar PDF
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- INFORMACIÃ“N DE LA PLANILLA -->
+
+        <section class="card">
+
+            <h3 class="card-title">
+                Información de la planilla
+            </h3>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Empresa</label>
+
+                    <input class="form-control"
+                           type="text"
+                           th:value="${planilla.empresa.razonSocial}"
+                           readonly>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>RUC</label>
+
+                    <input class="form-control"
+                           type="text"
+                           th:value="${planilla.empresa.ruc}"
+                           readonly>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Período</label>
+
+                    <input class="form-control"
+                           type="text"
+                           th:value="${planilla.periodoMes + ' / ' + planilla.periodoAnio}"
+                           readonly>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Estado</label>
+
+                    <input class="form-control"
+                           type="text"
+                           th:value="${planilla.estado}"
+                           readonly>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- DETALLE DE TRABAJADORES -->
+
+        <section class="card">
+
+            <h3 class="card-title">
+                Detalle de trabajadores
+            </h3>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Trabajador</th>
+
+                            <th>Documento</th>
+                            <th>Faltas</th>
+                            <th>Horas extra</th>
+
+                            <th>Sueldo base</th>
+
+                            <th>Bonificaciones</th>
+
+                            <th>Bruto</th>
+
+                            <th>Pens</th>
+
+                            <th>Retencíon 5ta</th>
+
+                            <th>Descuentos</th>
+
+                            <th>Neto</th>
+                            <th>Acciones</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr th:each="detalle : ${detalles}">
+
+                            <td th:text="${detalle.trabajador.nombres
+                                + ' '
+                                + detalle.trabajador.apellidos}">
+                                Trabajador
+                            </td>
+
+                            <td th:text="${detalle.trabajador.documentoNumero}">
+                                00000000
+                            </td>
+
+                            <td th:text="${detalle.faltas}">0</td>
+                            <td th:text="${detalle.horasExtra}">0</td>
+
+                            <td th:text="${detalle.sueldoBase}">
+                                0.00
+                            </td>
+
+                            <td th:text="${detalle.bonificaciones}">
+                                0.00
+                            </td>
+
+                            <td th:text="${detalle.totalBruto}">
+                                0.00
+                            </td>
+
+                            <td th:text="${detalle.aportePension}">
+                                0.00
+                            </td>
+
+                            <td th:text="${detalle.retencionQuinta}">
+                                0.00
+                            </td>
+
+                            <td th:text="${detalle.descuentos}">
+                                0.00
+                            </td>
+
+                            <td th:text="${detalle.totalNeto}">
+                                0.00
+                            </td>
+
+                            <td class="novedades-actions">
+                                <a class="btn btn-primary btn-sm"
+                                   th:href="@{/planillas/ver/{id}/boleta/{detalleId}/pdf(id=${planilla.id},detalleId=${detalle.id})}">
+                                    Descargar boleta
+                                </a>
+                                <button class="btn btn-secondary btn-sm" type="button" data-novedades-trigger
+                                        th:attr="data-action=@{/planillas/detalle/{id}/novedades(id=${detalle.id})},data-trabajador=${detalle.trabajador.nombres + ' ' + detalle.trabajador.apellidos},data-faltas=${detalle.faltas == null ? 0 : detalle.faltas},data-horas-extra=${detalle.horasExtra == null ? 0 : detalle.horasExtra},data-bonificaciones=${detalle.bonificaciones == null ? 0 : detalle.bonificaciones},data-subsidios=${detalle.subsidios == null ? 0 : detalle.subsidios},data-otros-descuentos=${detalle.descuentos == null ? 0 : detalle.descuentos}">
+                                    Registrar novedades
+                                </button>
+                            </td>
+
+                        </tr>
+
+
+                        <tr th:if="${#lists.isEmpty(detalles)}">
+
+                            <td colspan="12"
+                                class="empty-state">
+
+                                No existen trabajadores
+                                registrados en esta planilla.
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <dialog class="novedades-dialog" id="novedadesDialog" aria-labelledby="novedadesTitulo">
+            <form id="novedadesForm" th:action="@{/planillas}" method="post">
+                <div class="novedades-dialog-header">
+                    <div>
+                        <p class="novedades-eyebrow">Planilla mensual</p>
+                        <h2 id="novedadesTitulo">Registrar novedades</h2>
+                        <p id="novedadesTrabajador" class="novedades-trabajador"></p>
+                    </div>
+                    <button class="novedades-close" type="button" data-dialog-close aria-label="Cerrar">&times;</button>
+                </div>
+                <div class="novedades-dialog-body">
+                    <div class="novedades-form-grid">
+                        <div class="form-group">
+                            <label for="novedadFaltas">Faltas</label>
+                            <input class="form-control" id="novedadFaltas" type="number" name="faltas" min="0" max="30" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="novedadHorasExtra">Horas extra</label>
+                            <input class="form-control" id="novedadHorasExtra" type="number" name="horasExtra" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="novedadBonificaciones">Bonificaciones (S/)</label>
+                            <input class="form-control" id="novedadBonificaciones" type="number" name="bonificaciones" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="novedadSubsidios">Subsidios (S/)</label>
+                            <input class="form-control" id="novedadSubsidios" type="number" name="subsidios" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group novedades-full-width">
+                            <label for="novedadOtrosDescuentos">Otros descuentos (S/)</label>
+                            <input class="form-control" id="novedadOtrosDescuentos" type="number" name="otrosDescuentos" min="0" step="0.01" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="novedades-dialog-footer">
+                    <button class="btn btn-secondary" type="button" data-dialog-close>Cancelar</button>
+                    <button class="btn btn-primary" type="submit">Guardar y recalcular</button>
+                </div>
+            </form>
+        </dialog>
+
+        <!-- TOTALES -->
+
+        <section class="card">
+
+            <h3 class="card-title">
+                Totales de la planilla
+            </h3>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Total bruto</label>
+
+                    <input class="form-control"
+                           type="text"
+                           th:value="${planilla.totalBruto}"
+                           readonly>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Total descuentos</label>
+
+                    <input class="form-control"
+                           type="text"
+                           th:value="${planilla.totalDescuentos}"
+                           readonly>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Total neto</label>
+
+                    <input class="form-control"
+                           type="text"
+                           th:value="${planilla.totalNeto}"
+                           readonly>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</div>
+
+<script>
+    const novedadesDialog = document.getElementById('novedadesDialog');
+    const novedadesForm = document.getElementById('novedadesForm');
+
+    document.querySelectorAll('[data-novedades-trigger]').forEach((button) => {
+        button.addEventListener('click', () => {
+            novedadesForm.action = button.dataset.action;
+            document.getElementById('novedadesTrabajador').textContent = button.dataset.trabajador;
+            document.getElementById('novedadFaltas').value = button.dataset.faltas || 0;
+            document.getElementById('novedadHorasExtra').value = button.dataset.horasExtra || 0;
+            document.getElementById('novedadBonificaciones').value = button.dataset.bonificaciones || 0;
+            document.getElementById('novedadSubsidios').value = button.dataset.subsidios || 0;
+            document.getElementById('novedadOtrosDescuentos').value = button.dataset.otrosDescuentos || 0;
+            novedadesDialog.showModal();
+        });
+    });
+
+    document.querySelectorAll('[data-dialog-close]').forEach((button) => {
+        button.addEventListener('click', () => novedadesDialog.close());
+    });
+
+    novedadesDialog.addEventListener('click', (event) => {
+        if (event.target === novedadesDialog) novedadesDialog.close();
+    });
+</script>
+
+</body>
+
+</html>

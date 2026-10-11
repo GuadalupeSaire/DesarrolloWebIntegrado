@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Usuarios | GESCONT</title>
+
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div th:replace="~{fragments/layout :: sidebar('usuarios')}"></div>
+
+    <div class="main">
+
+        <!-- Header -->
+        <header th:replace="~{fragments/layout :: header('Usuarios y Roles')}"></header>
+
+        <main class="content">
+
+            <!-- Encabezado de página -->
+            <div class="page-heading">
+                <div>
+                    <h1>Usuarios y Roles</h1>
+                    <p>Administra la información de los usuarios de GESCONT.</p>
+                </div>
+
+                <a class="btn btn-primary" th:href="@{/usuarios/nueva}">
+                    + Nuevo Usuario
+                </a>
+            </div>
+
+            <!-- Tarjeta del listado -->
+            <section class="card">
+
+                <h3 class="card-title">Listado de usuarios</h3>
+
+                <div class="table-wrapper">
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Apellidos</th>
+                                <th>Rol</th>
+                                <th>Correo</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <!-- Usuarios registrados -->
+                            <tr th:each="usuario : ${usuarios}">
+
+                                <td th:text="${usuario.id}"></td>
+
+                                <td th:text="${usuario.nombres}"></td>
+
+                                <td th:text="${usuario.apellidos}"></td>
+
+                                <td>
+                                    <span th:each="usuarioRol : ${usuario.roles}"
+                                        th:text="${usuarioRol.rol.nombre}"
+                                        class="badge">
+                                    </span>
+
+                                    <span th:if="${#lists.isEmpty(usuario.roles)}">
+                                        Sin rol
+                                    </span>
+                                </td>
+
+                                <td th:text="${usuario.correo}"></td>
+
+                                <td>
+                                    <span th:text="${usuario.estado} ? 'Activo' : 'Inactivo'"
+                                          th:class="${usuario.estado} ? 'badge badge-success' : 'badge badge-danger'">
+                                    </span>
+                                </td>
+
+                                <!-- Acciones -->
+                                <td>
+                                    <div style="display: flex; gap: 8px;">
+
+                                        <a class="btn btn-secondary btn-sm"
+                                           th:href="@{/usuarios/editar/{id}(id=${usuario.id})}">
+                                            Editar
+                                        </a>
+
+                                            <form th:action="@{/usuarios/eliminar/{id}(id=${usuario.id})}"
+                                                  method="post"
+                                                  onsubmit="return confirm('El usuario quedará inactivo y no podrá iniciar sesión. Se conservará el historial asociado. ¿Deseas continuar?');">
+
+                                            <button class="btn btn-danger btn-sm"
+                                                    type="submit">
+                                                Desactivar
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+                                </td>
+
+                            </tr>
+
+                            <!-- Mensaje cuando no hay usuarios -->
+                            <tr th:if="${#lists.isEmpty(usuarios)}">
+                                <td colspan="7" class="empty-state">
+                                    No hay usuarios registrados todavía.
+                                    <br><br>
+                                    Registra un usuario para comenzar.
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+
+                </div>
+
+            </section>
+
+        </main>
+
+        <!-- Footer -->
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+    </div>
+
+</body>
+</html>
