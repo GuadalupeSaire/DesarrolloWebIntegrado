@@ -70,12 +70,6 @@ public class SecurityConfig {
                         .requestMatchers("/planillas/**")
                         .hasAnyRole("ADMINISTRADOR", "PLANILLAS")
 
-                        .requestMatchers(
-                                "/vacantes/**",
-                                "/candidatos/**",
-                                "/postulaciones/**")
-                        .hasAnyRole("ADMINISTRADOR", "JEFE_RECLUTAMIENTO", "ANALISTA", "ASISTENTE")
-
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")

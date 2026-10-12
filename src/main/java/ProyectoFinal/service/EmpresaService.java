@@ -63,7 +63,7 @@ public class EmpresaService {
             return;
         }
 
-        // Retirar primero los registros hijos de postulaciones y planillas.
+        // Retirar primero los registros que apuntan a documentos y operaciones hijas.
         etapaPostulacionRepository.deleteByPostulacionVacanteEmpresaId(id);
         postulacionRepository.deleteByVacanteEmpresaId(id);
         detallePlanillaRepository.deleteByPlanillaEmpresaId(id);

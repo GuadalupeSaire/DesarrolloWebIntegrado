@@ -3,81 +3,179 @@ ESPECIFICACIÓN DE REQUERIMIENTOS TÉCNICOS Y ARQUITECTURA DE SOFTWARE
 PROYECTO: SASREC (Sistema de Apoyo al Servicio de Reclutamiento de Personal)
 ORGANIZACIÓN: GESCONT Servicios Administrativos y Contables S.A.C.
 UNIVERSIDAD TECNOLÓGICA DEL PERÚ (UTP) - CURSO INTEGRADOR I
-VERSIÓN: 2.0 - ALCANCE REDUCIDO
 ================================================================================
 
 1. INFORMACIÓN GENERAL Y OBJETIVO DEL SISTEMA
 --------------------------------------------------------------------------------
-1.1 Nombre del Sistema: SASREC.
-1.2 Propósito: Sistema web multiempresa para automatizar el reclutamiento y
-    selección de personal (ATS) y el cálculo interno de planillas y boletas de
-    las empresas cliente de GESCONT. No presenta información a SUNAT ni envía
-    información a ninguna entidad o persona externa.
-1.3 Modelo Operativo: Multiempresa lógico (aislamiento de datos por empresa cliente).
-1.4 Roles: Administrador, Jefe de Reclutamiento (Jefe_Reclutamiento), Analista de
-    Selección (Analista), Asistente de Reclutamiento (Asistente) y Encargado de
-    Planillas (Planillas).
+1.1 Nombre del Sistema: SASREC (Sistema de Apoyo al Servicio de Reclutamiento 
+    de Personal).
+1.2 Propósito: Sistema web multiempresa diseñado para automatizar y centralizar 
+    el reclutamiento y selección de personal (ATS), el cálculo parametrizado 
+    de nóminas/planillas de las empresas cliente.
+1.3 Modelo Operativo: Multiempresa / Multi-tenant lógico (aislamiento estricto 
+    de datos por empresa cliente atendida por el BPO).
 
 --------------------------------------------------------------------------------
 2. ARQUITECTURA Y PATRONES DE DISEÑO
 --------------------------------------------------------------------------------
-2.1 Patrón: MVC de Spring con arquitectura en capas:
-    Controller -> Service (@Transactional) -> Repository (Spring Data JPA) -> PostgreSQL.
-2.2 Patrones: Repository, Service Layer y DTO para reportes (TrabajadorEmpresaReporte,
-    DetallePlanillaReporte). Autenticación con Spring Security (formulario y sesión)
-    y contraseñas con BCrypt.
+2.1 Patrón Arquitectónico Principal:
+    - MVC (Modelo - Vista - Controlador) nativo de Spring Framework.
+    - Arquitectura en Capas desacopladas:
+      * Capa de Presentación (View / Controllers Web REST o Servidor).
+      * Capa de Negocio / Servicios (Services / Business Logic Layer).
+      * Capa de Procesamiento por Lotes (Batch Processing Layer).
+      * Capa de Acceso a Datos (DAO / Spring Data JPA Repositories).
+      * Capa de Persistencia (PostgreSQL Relacional).
+
+2.2 Patrones de Diseño a Nivel de Código y Componentes:
+    - Data Access Object (DAO) / Repository Pattern: Abstracción de acceso a datos.
+    - Data Transfer Object (DTO): Transporte seguro de información entre capas.
+    - Service Layer Pattern: Centralización de reglas de negocio y transaccionalidad (@Transactional).
+    - Stateless Authentication Pattern: Autenticación basada en tokens sin estado (JWT) delegando la sesión al cliente.
+    - Template / Strategy Pattern: Para el cálculo parametrizable de conceptos de planilla (AFP, ONP, 5ta Categoría, EsSalud) y parsing de documentos.
 
 --------------------------------------------------------------------------------
-3. STACK TECNOLÓGICO
+3. STACK TECNOLÓGICO Y FRAMEWORKS
 --------------------------------------------------------------------------------
-Backend: Java 21, Spring Boot (Web, Data JPA, Security, Validation), PostgreSQL.
-Frontend: Thymeleaf y Bootstrap.
-Librerías: Apache PDFBox (lectura de CVs), JasperReports (reporte de terna y boletas).
-Pruebas: JUnit 5 y Mockito. Control de versiones: Git / GitHub.
-Se retiran del alcance: Spring Batch, JWT, Apache Tika y despliegue con Docker/Nginx.
+3.1 Backend:
+    - Lenguaje: Java .
+    - Framework Principal: Spring Boot .
+    - Módulos Spring:
+      * Spring Web (Controladores MVC y endpoints RESTful).
+      * Spring Data JPA / Hibernate (ORM para mapeo objeto-relacional).
+      * Spring Security (Gestión de autenticación, autorización y filtros RBAC).
+      * Spring Batch (Para ejecución y procesamiento en bloque de planillas y 
+        generación masiva de estructuras fiscales).
+
+3.2 Base de Datos y Persistencia:
+    - Motor de BD: PostgreSQL 15+ (Cumplimiento ACID estricto).
+    - Mecanismo de Migración / Scripts: DDL estructurado con integridad referencial 
+      y restricciones por empresa (Tenant ID).
+
+3.3 Frontend e Interfaz de Usuario:
+    - Alternativa Principal: Thymeleaf (Motor de plantillas del lado del servidor).
+    - Framework CSS / Estilos: Bootstrap (Diseño responsivo móvil/escritorio).
+    - JavaScript: Vanilla JavaScript / Fetch API para peticiones asíncronas y UX reactiva.
+
+3.4 Librerías Especializadas y Herramientas:
+    - Extracción de Texto / Parseo de CVs: Apache PDFBox / Apache Tika.
+    - Generación y Exportación de Documentos: JasperReports (Compilación y renderizado 
+      de boletas de pago digitales en PDF, reportes ejecutivos).
+    - Autenticación y Criptografía: jjwt (Java JWT) / Spring Security Crypto (BCrypt 
+      PasswordEncoder).
+    - Testing y Calidad: JUnit 5, Mockito.
+    - Control de Versiones: Git / GitLab / GitHub.
+
+3.5 Entorno de Despliegue e Infraestructura:
+    - Contenedores: Docker (Dockerfile multi-stage para empaquetado de artefacto JAR).
+    - Sistema Operativo Base: Linux Ubuntu Server.
+    - Servidor Cloud: VPS Linux (4 vCPU, 8 GB RAM, almacenamiento SSD).
+    - Servidor Web / Proxy Inverso: Nginx / Servidor Embebido Apache Tomcat (Spring Boot).
+    - Seguridad de Red: Protocolo HTTPS, Certificados SSL TLS (Let's Encrypt).
 
 --------------------------------------------------------------------------------
 4. REQUERIMIENTOS FUNCIONALES (RF)
 --------------------------------------------------------------------------------
-- RF001: Inicio de Sesión y Control de Acceso por Rol
-- RF002: Gestión de Usuarios y Roles
-- RF003: Gestión de Empresas Cliente
-- RF004: Gestión de Vacantes
-- RF005: Registro de Candidatos y Carga de CV
-- RF006: Detección de Candidatos Duplicados
-- RF007: Banco Único de Postulantes
-- RF008: Evaluación y Ranking de Candidatos
-- RF009: Seguimiento del Estado de Postulaciones
-- RF010: Conformación y Aprobación de Terna
-- RF011: Reporte de Terna en PDF
-- RF012: Gestión de Trabajadores por Empresa
-- RF013: Cálculo Interno de Planilla
-- RF014: Generación de Boletas de Pago
-(Detalle de cada RF en el documento SASREC_RF_RNF_CU_Formato_Plantilla.docx)
+- RF001: Registro de Ofertas de Empleo y Tiempos de Entrega por Cliente
+  * Registro de vacante asociada a una empresa cliente.
+  * Definición de salarios, perfil, requisitos excluyentes y competencias.
+  * Configuración de SLA (tiempos de entrega) con semaforización (verde, amarillo, rojo).
+  * Publicación de la vacante para postulación web.
+
+- RF002: Lectura y Organización Automática de Currículums (Parsing)
+  * Carga de hojas de vida en formato PDF.
+  * Extracción automática de nombres, teléfonos, email, estudios, experiencia y skills vía Apache PDFBox.
+  * Generación de ficha técnica de candidato editable por el reclutador.
+
+- RF003: Calificación y Ranking de Candidatos por Puesto (Scoring Curricular)
+  * Algoritmo de comparación entre perfil de vacante y texto del CV.
+  * Asignación de score automático (0 - 100% de coincidencia).
+  * Ordenamiento automático y desglose de criterios cumplidos.
+
+- RF004: Banco Único de Postulantes y Detección de Duplicados
+  * Identificación unívoca por DNI o Carnet de Extranjería.
+  * Prevención y consolidación de perfiles duplicados.
+  * Historial transversal de postulaciones previas y buscador de talento por palabras clave.
+
+- RF005: Seguimiento de Etapas y Envío de Candidatos Finales (ATS Pipeline)
+  * Flujo de estados: Revisión, Entrevista, Evaluación médica, Seleccionado, Descartado.
+  * Trazabilidad temporal (timestamp) por cada cambio de fase.
+  * Generación y exportación de informe de terna finalista para el cliente.
+
+- RF006: Cálculo Mensual de Sueldos y Descuentos por Empresa
+  * Registro de novedades mensuales (asistencias, faltas, tardanzas, horas extras, subsidios).
+  * Cálculo automatizado de sueldo bruto, sueldo neto, retenciones (AFP/ONP, Renta de 5ta).
+  * Aportaciones patronales (EsSalud, SCTR). Separación estricta por empresa.
+
+- RF010: Gestión de Empresas Clientes (Tenancy / BPO)
+  * Registro de clientes corporativos (RUC, Razón Social, Régimen tributario, Contactos).
+  * Asociación de servicios contratados y asignación de analistas responsables.
+
+- RF011: Gestión de Usuarios, Roles y Permisos (RBAC)
+  * Mantenimiento de usuarios y asignación de roles: Administrador, RRHH / Reclutador, 
+    Contabilidad / Planillas.
+  * Matriz de autorización por módulo y filtrado obligatorio por empresa asignada.
+
+- RF012: Gestión de Trabajadores por Empresa Cliente
+  * Ficha maestro del trabajador: datos personales, régimen laboral, régimen pensionario, 
+    banco de abono, remuneración base.
+
+- RF014: Dashboard y Reportes Administrativos Gerenciales
+  * Métricas visuales de colocación de personal, cumplimiento de SLAs y nóminas procesadas.
+  * Exportación de reportes ejecutivos en PDF y Excel.
+
+- RF015: Gestión de Parámetros Laborales y Tributarios
+  * Mantenimiento dinámico de variables legales (Valor UIT, porcentajes AFP, topes, 
+    asignación familiar) sin alterar el código fuente.
 
 --------------------------------------------------------------------------------
 5. REQUERIMIENTOS NO FUNCIONALES (RNF)
 --------------------------------------------------------------------------------
-- RNF001 Privacidad y separación de información entre clientes
-- RNF002 Seguridad de acceso y credenciales
-- RNF003 Usabilidad
-- RNF004 Rendimiento
-- RNF005 Precisión de los cálculos de planilla
-- RNF006 Compatibilidad
-- RNF007 Disponibilidad
-- RNF008 Integridad y respaldo de la información
-- RNF009 Mantenibilidad
-- RNF010 Confidencialidad y no envío de información a terceros
+- RNF001 - Privacidad y Aislamiento Multi-tenant:
+  * Validación obligatoria de tenant_id en cada consulta/transacción SQL. Ningún 
+    usuario podrá ver o alterar datos de otra empresa ajena a su asignación.
+
+- RNF002 - Rendimiento y Tiempos de Respuesta:
+  * Tiempo de respuesta estándar <= 4.0 segundos en operaciones transaccionales.
+  * Procesamiento en segundo plano (asíncrono o batch) para cargas masivas de CVs 
+    y cierres de nómina, sin bloquear la interfaz.
+
+- RNF003 - Usabilidad e Interfaz Responsiva:
+  * Interfaz responsiva bajo Bootstrap accesible en resoluciones móviles y desktop.
+  * Arquitectura de navegación con profundidad máxima de 3 niveles de clics.
+
+- RNF004 - Auditoría y Trazabilidad Inmutable:
+  * Registro de auditoría (logs en base de datos) para altas, bajas y modificaciones 
+    críticas (sueldos, parámetros, eliminaciones), capturando usuario, fecha, 
+    hora y valores anteriores/posteriores.
+
+- RNF005 - Seguridad y Tratamiento de Datos Personales:
+  * Cumplimiento de la Ley de Protección de Datos Personales (Perú). Cifrado de datos 
+    sensibles y protección estricta del directorio de almacenamiento de CVs.
+
+- RNF006 - Autenticación y Control de Acceso:
+  * Manejo de contraseñas mediante hashing criptográfico unidireccional (BCrypt).
+  * Control de sesiones sin estado con tokens JWT firmados digitalmente.
+  * Protección contra ataques de navegación forzada (URL tampering).
+
+- RNF007 - Respaldo y Recuperación (Backup & DR):
+  * Estrategia de respaldo periódico automatizado (pg_dump) con almacenamiento 
+    desacoplado y pruebas de restauración programadas.
+
+- RNF008 - Compatibilidad y Manejo Seguro de Archivos:
+  * Validación MIME type y límites de peso en subida de ficheros (máximo 5MB por CV).
+  * Generación estándar PDF/A para boletas y reportes.
 
 --------------------------------------------------------------------------------
-6. FUERA DEL ALCANCE
+6. LÍMITES Y CONDICIONES DE BORDE (OUT OF SCOPE)
 --------------------------------------------------------------------------------
-- Declaraciones y archivos para SUNAT (PLAME, T-Registro), impuestos (IGV, Renta),
-  compras y ventas.
-- Envío de correos, notificaciones y aprobaciones externas.
-- Custodia digital de expedientes y gestión de documentos.
-- Inteligencia artificial: el filtrado es por coincidencia de palabras clave y requisitos.
-- Aplicaciones móviles nativas; integraciones con SUNAT, bancos o ERP.
+- No incluye motores de Inteligencia Artificial / NLP generativo avanzado; el filtrado 
+  se realiza por coincidencia de términos clave, experiencia y patrones léxicos.
+- No incluye aplicaciones móviles nativas (iOS/Android); soporte 100% web responsive.
+- No incluye declaraciones ni archivos para SUNAT (PLAME, T-Registro), impuestos,
+  compras y ventas, envío de correos, custodia de documentos ni notificaciones.
+- No incluye integración con SUNAT ni pasarelas bancarias.
+================================================================================
 
 ================================================================================
 BITÁCORA DE AVANCE
@@ -174,12 +272,9 @@ BITÁCORA DE AVANCE
 - El script usa correos bajo dominios .example y evita duplicados al ejecutarse nuevamente para los mismos contactos.
 - Pendiente: ejecutar despues de insertar las empresas y verificar el listado por rol y empresa; no se ejecuto contra la base de datos.
 
-2026-10-09 | Adecuación al alcance reducido (v2.0)
-- Se eliminaron las entidades Declaracion, DetalleDeclaracion, AprobacionExterna, EnvioCorreo, Notificacion y Documento, junto con sus repositories y services. EmpresaService ya no las referencia.
-- Planilla.EstadoPlanilla pasa a BORRADOR, CALCULADA y CERRADA (se quita ENVIADA).
-- Postulacion.EstadoPostulacion pasa a POSTULADA, PRESELECCIONADA, ENTREVISTA, EN_TERNA, CONTRATADA y DESCARTADA.
-- Vacante: estados ABIERTA, CERRADA y CANCELADA; se agregan experienciaAnios, palabrasClave, cantidadPuestos y los datos de aprobación de terna (estadoTerna, ternaAprobadaPor, fechaTerna).
-- Candidato: se agregan formacion, experienciaAnios y habilidades para filtros y scoring.
-- Roles: Administrador, Jefe_Reclutamiento, Analista, Asistente y Planillas (se retiran Contador y Reclutador). SecurityConfig protege /vacantes, /candidatos y /postulaciones; UsuarioGlobalControllerAdvice publica esReclutamiento.
-- Se agrega sql/adecuacion_requerimientos_reducidos.sql para limpiar y migrar la base de datos.
-- Pendiente: controladores y vistas del ATS (vacantes, candidatos, postulaciones, terna), lectura de CV con PDFBox, cálculo del porcentaje de coincidencia, reporte de terna y retiro de la cuenta temporal user@user.com. No se pudo compilar con Maven en este entorno (sin acceso a red).
+2026-10-09 | Adecuación al alcance reducido
+- Se eliminaron los requerimientos RF007 (boletas con envío digital), RF008 (PLAME y T-Registro), RF009 (impuestos mensuales) y RF013 (compras y ventas). El resto de los RF conserva su número y nombre original.
+- Se eliminaron las entidades Declaracion, DetalleDeclaracion, AprobacionExterna, EnvioCorreo, Notificacion y Documento, con sus repositories y services; EmpresaService ya no las usa.
+- Se quitó el estado ENVIADA de Planilla, el estado ENVIADA_CLIENTE de Postulacion y el rol Contador.
+- Se quitaron del menú lateral los enlaces Impuestos, Documentos y Notificaciones.
+- Se agregaron sql/crear_base_de_datos.sql (BD desde cero) y sql/limpieza_bd_existente.sql (limpieza de una BD ya creada).

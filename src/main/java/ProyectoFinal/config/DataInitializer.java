@@ -18,11 +18,9 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
-        crearRol("Administrador", "Gestión de usuarios, roles y empresas cliente");
-        crearRol("Jefe_Reclutamiento", "Define perfiles, aprueba ternas y obtiene el reporte de terna");
-        crearRol("Analista", "Gestiona vacantes, evalúa candidatos y actualiza estados");
-        crearRol("Asistente", "Registra candidatos, carga CVs y consulta el banco de postulantes");
-        crearRol("Planillas", "Gestión de trabajadores, planillas y boletas");
+        crearRol("Administrador", "Acceso administrativo al sistema");
+        crearRol("Reclutador", "Gestión de procesos de selección");
+        crearRol("Planillas", "Gestión de trabajadores y planillas");
     }
 
     private void crearRol(String nombre, String descripcion) {

@@ -86,14 +86,6 @@ public class UsuarioGlobalControllerAdvice {
         return tieneAutoridad(authentication, "ROLE_PLANILLAS");
     }
 
-    @ModelAttribute("esReclutamiento")
-    public boolean esReclutamiento(Authentication authentication) {
-        return tieneAutoridad(authentication, "ROLE_ADMINISTRADOR")
-                || tieneAutoridad(authentication, "ROLE_JEFE_RECLUTAMIENTO")
-                || tieneAutoridad(authentication, "ROLE_ANALISTA")
-                || tieneAutoridad(authentication, "ROLE_ASISTENTE");
-    }
-
     private boolean tieneAutoridad(Authentication authentication, String autoridad) {
         return authentication != null
                 && authentication.isAuthenticated()
